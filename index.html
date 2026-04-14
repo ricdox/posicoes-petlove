@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Petlove · Solicitação de Posições</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --purple-dark:#3D1A8C;--purple:#5A31D8;--purple-mid:#7B52E0;
+      --purple-light:#EAE4FB;--purple-xlight:#F5F2FF;
+      --coral:#E8543A;--coral-light:#FFF0ED;
+      --green:#22C55E;--green-light:#DCFCE7;
+      --yellow:#F6C90E;--yellow-light:#FFFBE6;
+      --text:#1A1040;--text-mid:#4B4073;--text-light:#9186B8;
+      --border:#DDD5F5;--bg:#F7F5FF;--white:#FFFFFF;
+      --shadow:0 4px 24px rgba(90,49,216,.10);
+      --radius:14px;--radius-sm:8px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:"Nunito Sans",sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    body.login-mode{overflow:hidden}
+    header{background:var(--white);border-bottom:2px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(90,49,216,.08)}
+    .header-logo{display:flex;align-items:center;gap:12px}
+    .header-logo img{height:38px;width:38px;border-radius:50%;object-fit:cover}
+    .header-divider{width:1px;height:26px;background:var(--border)}
+    .header-title{font-family:"Nunito",sans-serif;font-size:14px;font-weight:700;color:var(--text-mid)}
+    .user-chip{display:flex;align-items:center;gap:8px;background:var(--purple-light);border-radius:20px;padding:5px 12px;font-family:"Nunito",sans-serif;font-size:12px;font-weight:700;color:var(--purple-dark)}
+    .user-avatar{width:24px;height:24px;border-radius:50%;background:var(--purple);color:var(--white);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0}
+    .admin-badge{background:var(--coral);color:var(--white);font-size:9px;padding:2px 6px;border-radius:10px;margin-left:2px;font-weight:800}
+    .btn-logout{background:none;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:4px 10px;font-family:"Nunito",sans-serif;font-size:11px;font-weight:700;color:var(--text-light);cursor:pointer;transition:all .2s;margin-left:6px}
+    .btn-logout:hover{border-color:var(--coral);color:var(--coral);background:var(--coral-light)}
+    .hero{background:linear-gradient(135deg,#2D1270 0%,var(--purple-dark) 40%,var(--purple) 100%);color:var(--white);padding:32px 40px 28px;position:relative;overflow:hidden}
+    .hero::before{content:"";position:absolute;top:-60px;right:-60px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.05)}
+    .hero-inner{max-width:960px;position:relative;z-index:1}
+    .hero h1{font-family:"Nunito",sans-serif;font-size:24px;font-weight:900;margin-bottom:4px}
+    .hero p{font-size:13px;opacity:.8;font-weight:600}
+    .sla-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:800;margin-top:12px}
+    .sla-dot{width:7px;height:7px;border-radius:50%;background:var(--yellow);animation:pulse 1.6s infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+    .tabs{display:flex;border-bottom:2px solid var(--border);background:var(--white);padding:0 32px;position:sticky;top:64px;z-index:90;box-shadow:0 2px 8px rgba(90,49,216,.04)}
+    .tab{padding:14px 18px;font-family:"Nunito",sans-serif;font-size:13px;font-weight:700;color:var(--text-light);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-2px;transition:all .2s;display:flex;align-items:center;gap:6px}
+    .tab:hover{color:var(--purple-mid)}
+    .tab.active{color:var(--purple);border-bottom-color:var(--purple)}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+    .container{max-width:960px;margin:28px auto;padding:0 24px 60px}
+    .steps{display:flex;align-items:center;background:var(--white);border-radius:var(--radius);padding:18px 24px;box-shadow:var(--shadow);margin-bottom:22px}
+    .step{display:flex;align-items:center;gap:8px;flex:1}
+    .step-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:"Nunito",sans-serif;font-size:13px;font-weight:900;flex-shrink:0;transition:all .3s}
+    .step-num.active{background:var(--purple);color:var(--white)}
+    .step-num.done{background:var(--green);color:var(--white)}
+    .step-num.inactive{background:var(--border);color:var(--text-light)}
+    .step-label{font-family:"Nunito",sans-serif;font-size:12px;font-weight:700;line-height:1.25}
+    .step-label span{display:block;font-size:10px;font-weight:600;color:var(--text-light)}
+    .step-sep{flex:none;width:24px;height:2px;background:var(--border);margin:0 4px;border-radius:2px}
+    .progress-wrap{margin-bottom:20px}
+    .progress-label{display:flex;justify-content:space-between;font-family:"Nunito",sans-serif;font-size:11px;font-weight:700;color:var(--text-light);margin-bottom:5px}
+    .progress-bar{height:5px;background:var(--border);border-radius:4px;overflow:hidden}
+    .progress-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--purple-mid));border-radius:4px;width:0%;transition:width .4s ease}
+    .card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;border:1.5px solid transparent}
+    .card-header{padding:16px 24px;border-bottom:1.5px solid var(--purple-xlight);display:flex;align-items:center;gap:10px}
+    .card-icon{width:34px;height:34px;border-radius:10px;background:var(--purple-light);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+    .card-header h2{font-family:"Nunito",sans-serif;font-size:14px;font-weight:800;color:var(--purple-dark)}
+    .card-header p{font-size:11px;color:var(--text-light);font-weight:600;margin-top:1px}
+    .card-body{padding:22px 24px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .span-2{grid-column:span 2}
+    @media(max-width:700px){.grid-2{grid-template-columns:1fr}.span-2{grid-column:span 1}}
+    .field{display:flex;flex-direction:column;gap:5px}
+    label{font-family:"Nunito",sans-serif;font-size:12px;font-weight:700;color:var(--text-mid)}
+    label .req{color:var(--coral);margin-left:2px}
+    label .opt{color:var(--text-light);font-size:10px;font-weight:600;margin-left:4px}
+    input[type=text],input[type=date],input[type=password],select,textarea{font-family:"Nunito Sans",sans-serif;font-size:13px;color:var(--text);background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 13px;outline:none;transition:border .2s,box-shadow .2s;width:100%}
+    input:focus,select:focus,textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(90,49,216,.12)}
+    select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239186B8'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:16px;padding-right:32px;cursor:pointer}
+    textarea{resize:vertical;min-height:70px}
+    .field-hint{font-size:10px;color:var(--text-light);font-weight:600;margin-top:-1px}
+    .field-error{font-size:10px;color:var(--coral);font-weight:700;margin-top:1px;display:none}
+    .field-error.show{display:block}
+    input.invalid,select.invalid{border-color:var(--coral)!important}
+    .radio-group{display:flex;gap:10px;flex-wrap:wrap}
+    .radio-option{display:flex;align-items:center;gap:7px;cursor:pointer;background:var(--purple-xlight);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 14px;transition:all .2s;font-family:"Nunito",sans-serif;font-size:12px;font-weight:700;color:var(--text-mid);flex:1;justify-content:center}
+    .radio-option:has(input:checked){background:var(--purple-light);border-color:var(--purple);color:var(--purple-dark)}
+    .radio-option input[type=radio]{display:none}
+    .radio-dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--text-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+    .radio-option:has(input:checked) .radio-dot{border-color:var(--purple);background:var(--purple);box-shadow:inset 0 0 0 2px var(--white)}
+    .toggle-group{display:flex;gap:8px}
+    .toggle-btn{flex:1;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--white);padding:8px;font-family:"Nunito",sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;color:var(--text-mid)}
+    .toggle-btn.yes.selected{background:var(--green-light);border-color:var(--green);color:#16A34A}
+    .toggle-btn.no.selected{background:var(--coral-light);border-color:var(--coral);color:var(--coral)}
+    .search-select-wrap{position:relative}
+    .search-select-wrap .dropdown-icon{position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--text-light);pointer-events:none;font-size:13px}
+    .ss-dropdown{position:fixed;background:var(--white);border:1.5px solid var(--purple);border-radius:var(--radius-sm);box-shadow:0 8px 32px rgba(90,49,216,.18);max-height:220px;overflow-y:auto;z-index:9999;display:none;min-width:200px}
+    .ss-dropdown.open{display:block}
+    .ss-option{padding:8px 13px;font-size:12px;cursor:pointer;font-weight:600;border-bottom:1px solid var(--purple-xlight);transition:background .15s}
+    .ss-option:last-child{border-bottom:none}
+    .ss-option:hover{background:var(--purple-xlight);color:var(--purple-dark)}
+    .ss-highlight{font-weight:800;color:var(--purple)}
+    .ss-no-results{padding:9px 13px;font-size:12px;color:var(--text-light);font-style:italic}
+    .divider{display:flex;align-items:center;gap:10px;margin:18px 0 14px}
+    .divider-line{flex:1;height:1.5px;background:var(--purple-xlight)}
+    .divider-label{font-family:"Nunito",sans-serif;font-size:10px;font-weight:800;color:var(--purple-mid);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+    .btn-group{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:var(--radius-sm);font-family:"Nunito",sans-serif;font-size:13px;font-weight:800;cursor:pointer;border:none;transition:all .2s;text-decoration:none}
+    .btn-primary{background:var(--purple);color:var(--white);box-shadow:0 4px 14px rgba(90,49,216,.28)}
+    .btn-primary:hover{background:var(--purple-dark);transform:translateY(-1px)}
+    .btn-secondary{background:var(--white);color:var(--purple);border:1.5px solid var(--purple)}
+    .btn-secondary:hover{background:var(--purple-xlight)}
+    .btn-add{background:var(--green);color:var(--white);box-shadow:0 4px 12px rgba(34,197,94,.28)}
+    .btn-add:hover{background:#16a34a;transform:translateY(-1px)}
+    .btn-export{background:var(--coral);color:var(--white);box-shadow:0 4px 12px rgba(232,84,58,.22)}
+    .btn-export:hover{background:#c73f27;transform:translateY(-1px)}
+    .entries-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+    .entries-header h3{font-family:"Nunito",sans-serif;font-size:14px;font-weight:800}
+    .count-badge{background:var(--purple);color:var(--white);font-family:"Nunito",sans-serif;font-size:11px;font-weight:800;padding:2px 8px;border-radius:20px}
+    .entries-table-wrap{overflow-x:auto;border-radius:var(--radius-sm);border:1.5px solid var(--border)}
+    table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
+    thead{background:var(--purple-dark);color:var(--white)}
+    th{padding:10px 13px;text-align:left;font-family:"Nunito",sans-serif;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+    tbody tr{border-bottom:1px solid var(--purple-xlight);transition:background .15s}
+    tbody tr:last-child{border-bottom:none}
+    tbody tr:hover{background:var(--purple-xlight)}
+    td{padding:9px 13px;color:var(--text);font-weight:600;max-width:180px;overflow:hidden;text-overflow:ellipsis}
+    .td-s{display:inline-flex;align-items:center;background:var(--green-light);color:#16A34A;font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;font-family:"Nunito",sans-serif}
+    .td-s.p{background:var(--yellow-light);color:#B45309}
+    .td-s.i{background:var(--purple-light);color:var(--purple-dark)}
+    .btn-del{background:none;border:none;cursor:pointer;color:var(--coral);padding:3px 7px;border-radius:6px;font-size:13px;transition:background .15s}
+    .btn-del:hover{background:var(--coral-light)}
+    .empty-state{text-align:center;padding:36px 20px;color:var(--text-light)}
+    .empty-state .ei{font-size:36px;margin-bottom:10px;opacity:.5}
+    .empty-state p{font-size:13px;font-weight:600}
+    .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+    @media(max-width:700px){.stat-grid{grid-template-columns:1fr 1fr}}
+    .stat-card{background:var(--white);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);border-left:4px solid var(--purple)}
+    .stat-card.g{border-left-color:var(--green)}
+    .stat-card.c{border-left-color:var(--coral)}
+    .stat-card.y{border-left-color:var(--yellow)}
+    .stat-num{font-family:"Nunito",sans-serif;font-size:30px;font-weight:900;color:var(--text);line-height:1}
+    .stat-label{font-size:11px;font-weight:700;color:var(--text-light);margin-top:4px;font-family:"Nunito",sans-serif}
+    .adm-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .adm-filters label{font-family:"Nunito",sans-serif;font-size:12px;font-weight:700;color:var(--text-mid);white-space:nowrap}
+    .adm-filters select{width:auto;font-size:12px;padding:6px 28px 6px 10px}
+    .toast-container{position:fixed;bottom:22px;right:22px;z-index:9998;display:flex;flex-direction:column;gap:8px}
+    .toast{background:var(--white);border-radius:var(--radius-sm);padding:11px 16px;box-shadow:0 8px 28px rgba(26,16,64,.18);display:flex;align-items:center;gap:10px;font-family:"Nunito",sans-serif;font-size:12px;font-weight:700;min-width:240px;border-left:4px solid var(--green);animation:si .3s ease}
+    .toast.error{border-color:var(--coral)}
+    @keyframes si{from{transform:translateX(50px);opacity:0}to{transform:translateX(0);opacity:1}}
+    .modal-overlay{position:fixed;inset:0;background:rgba(26,16,64,.55);z-index:10001;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+    .modal-overlay.open{display:flex}
+    .modal{background:var(--white);border-radius:var(--radius);padding:32px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(26,16,64,.25);animation:mi .3s ease}
+    @keyframes mi{from{transform:scale(.9) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+    .modal-icon{font-size:42px;text-align:center;margin-bottom:12px}
+    .modal h3{font-family:"Nunito",sans-serif;font-size:16px;font-weight:900;text-align:center;margin-bottom:8px}
+    .modal p{text-align:center;color:var(--text-mid);font-size:13px;font-weight:600;line-height:1.6;margin-bottom:18px}
+    .modal-btns{display:flex;gap:10px;justify-content:center}
+    .pwd-f{margin-bottom:14px;display:flex;flex-direction:column;gap:5px}
+    .pwd-f label{font-family:"Nunito",sans-serif;font-size:11px;font-weight:800;color:var(--text-mid);letter-spacing:.04em;text-transform:uppercase}
+    .login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,var(--purple-dark) 0%,var(--purple) 55%,var(--purple-mid) 100%);z-index:10002;display:flex;align-items:center;justify-content:center}
+    .login-overlay.hidden{display:none}
+    .login-card{background:var(--white);border-radius:20px;padding:42px 38px;width:100%;max-width:390px;box-shadow:0 24px 64px rgba(26,16,64,.35);animation:li .4s ease}
+    @keyframes li{from{transform:translateY(28px) scale(.96);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+    .login-logo{display:flex;align-items:center;justify-content:center;margin-bottom:24px}
+    .login-logo img{height:60px;width:60px;border-radius:50%;object-fit:cover;box-shadow:0 8px 24px rgba(90,49,216,.28)}
+    .login-title{font-family:"Nunito",sans-serif;font-size:20px;font-weight:900;color:var(--text);text-align:center;margin-bottom:4px}
+    .login-sub{font-size:12px;color:var(--text-light);text-align:center;font-weight:600;margin-bottom:26px}
+    .lf{margin-bottom:14px}
+    .lf label{display:block;font-family:"Nunito",sans-serif;font-size:11px;font-weight:800;color:var(--text-mid);margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase}
+    .lf select,.lf input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:"Nunito Sans",sans-serif;font-size:13px;color:var(--text);outline:none;transition:border .2s,box-shadow .2s}
+    .lf select:focus,.lf input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(90,49,216,.12)}
+    .btn-login{width:100%;padding:13px;background:var(--purple);color:var(--white);border:none;border-radius:var(--radius-sm);font-family:"Nunito",sans-serif;font-size:14px;font-weight:900;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px rgba(90,49,216,.28);margin-top:6px}
+    .btn-login:hover{background:var(--purple-dark);transform:translateY(-1px)}
+    .login-error{color:var(--coral);font-size:11px;font-weight:700;text-align:center;margin-top:8px;min-height:16px;font-family:"Nunito",sans-serif}
+    .td-s.sol{background:#EFF6FF;color:#1D4ED8}
+    .td-s.cri{background:var(--green-light);color:#16A34A}
+    .td-s.agu{background:var(--yellow-light);color:#B45309}
+    .td-s.ana{background:var(--purple-light);color:var(--purple-dark)}
+    .id-chip{display:inline-flex;align-items:center;gap:4px;background:#F0FDF4;color:#15803D;border:1px solid #BBF7D0;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:800;font-family:"Nunito",sans-serif}
+    .id-chip.empty{background:var(--purple-xlight);color:var(--text-light);border-color:var(--border)}
+
+    /* ── INLINE EDIT ── */
+    .editable-cell{cursor:pointer;border-radius:4px;padding:2px 4px;transition:background .15s;position:relative}
+    .editable-cell:hover{background:var(--purple-xlight)}
+    .editable-cell:hover::after{content:"✏️";font-size:9px;margin-left:4px;opacity:.6}
+    .inline-input{font-family:"Nunito Sans",sans-serif;font-size:12px;font-weight:600;border:1.5px solid var(--purple);border-radius:5px;padding:3px 7px;outline:none;background:var(--white);width:100%;box-shadow:0 0 0 3px rgba(90,49,216,.10);color:var(--text)}
+    .inline-select{font-family:"Nunito",sans-serif;font-size:11px;font-weight:700;border:1.5px solid var(--purple);border-radius:5px;padding:3px 6px;outline:none;background:var(--white);box-shadow:0 0 0 3px rgba(90,49,216,.10);cursor:pointer;color:var(--text);appearance:none}
+    ::-webkit-scrollbar{width:5px;height:5px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+    ::-webkit-scrollbar-thumb:hover{background:var(--purple-mid)}
+  </style>
+</head>
+<body>
+<!-- LOGIN -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-card">
+    <div class="login-logo"><img src="data:image/png;base64,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" alt="Petlove"/></div>
+    <div class="login-title">People Ops · Posições</div>
+    <div class="login-sub">Acesse com seu perfil de BP</div>
+    <div class="lf"><label>Usuário</label>
+      <select id="login-user">
+        <option value="">Selecione seu perfil</option>
+        <option value="bruna.passarelli@petlove.com.br">Bruna Passarelli</option>
+        <option value="fernanda.molina@petlove.com.br">Fernanda Molina</option>
+        <option value="julia.alves@petlove.com.br">Júlia Alves</option>
+        <option value="luiza.pesinato@petlove.com.br">Luiza Pesinato</option>
+        <option value="paula.zanella@petlove.com.br">Paula Zanella</option>
+        <option value="taynara.orlandini@petlove.com.br">Taynara Orlandini</option>
+        <option value="thais.satiro@petlove.com.br">Thais Satiro</option>
+        <option value="taiana.takigami@petlove.com.br">Yukiko Takigami</option>
+        <option value="peoplecost">People Cost (Admin)</option>
+      </select>
+    </div>
+    <div class="lf"><label>Senha</label>
+      <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="btn-login" onclick="doLogin()">Entrar →</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="modal-delete">
+  <div class="modal">
+    <div class="modal-icon">🗑️</div>
+    <h3>Remover posição?</h3>
+    <p>Esta ação não pode ser desfeita.</p>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeModal('modal-delete')">Cancelar</button>
+      <button class="btn btn-export" onclick="confirmDelete()">Sim, remover</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-logo">
+    <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCADhAOEDASIAAhEBAxEB/8QAHQABAAICAwEBAAAAAAAAAAAAAAcIBQYBBAkCA//EAEwQAAEDAwEFBQIKBQkGBwAAAAEAAgMEBREGBxIhMUEIE1FhgRRxFSIyQlJicpGSoRYjQ6LBFyQ0N1N1grPRM3OTseHwNVRVY4Ojwv/EABsBAQACAwEBAAAAAAAAAAAAAAADBgECBQQH/8QAMhEAAgIBAgQDBgUFAQAAAAAAAAECAxEEBRIhMUETUXEGImGx0eEyQoGRoRUjM8HwFP/aAAwDAQACEQMRAD8AuWiIgCIiAIiIAi+ZXsijdJI9rGMBc5zjgNA5klQhtM7RumbA+W36VhGoq9uQZ2P3aOM/b5yf4Bg8t4KanT2Xy4a1kyot9CcHENaXOIAAySeijjWW2/Zzph0kMt8bdKtmQaa2N9odkc2lwO40+TnBVF17tJ1prh723+9SupHH+g0+YqYeW4D8byLy4jxWojgMBdujZF1tl+i+pKqvMsbqbtTXKRz49M6VpqdvzJ7jOZHH3xswB+MqO7zt02pXN7j+kxoY3fsqOlijaPc4tL/3lGyLqV6DT19IL9efzN1FLsZ2u1lrGucXVmrtQVGeYfc5i37t7CxM9XV1Dt6oq6iZx5mSVzj+ZX4IvSoRXRGx+sNRUQuDoaiaIjkWPLSPuWUotWaroiDRaqv1Njl3VymYPuDlhkRxi+qBIdn22bUbY5ndatqamNvOOrhimDve5zd77nBSBpvtSahpyxmodM264Nzh0lHK+ncB47rt8E+rVXxF57NDp7PxQXy+RhxT7F29H7ftnGoCyKoucljqXfsrmwRN/wCKCY/vcD5KUoJYp4WTQSMlieA5j2OBa4HkQRzC80lsOitbar0ZUibTd7qqFm9vPpw7fgk48d6N2WknxxnwIXMv2SL51Sx6kbq8j0PRV62a9pe13B0Nv1zQttVQ7Dfb6UOfTOP1m8Xx/vDqSFP1vrKO4UUNdQVUFXSzND4poZA9j2nkQ4cCFw79NbQ8WLBE4tdT90RFAYCIiAIiIAiIgCIiAIiIAtU2lbQNNaAtAr79V4lkB9mo4cOnqCOjG55csuOGjIyeIWr7ddsFt2d0Yt9EyK4ajqI96ClJ+JA08pJsHIb4NHF2Ogy4Uz1Je7tqO91F6vldLXV9Qf1k0h6dGgcmtGThowAutoNslf79nKPzJIV55s3Haztc1TtCmkp6qb4Osm9mO2U7zuEdDK7gZT78NGBhoPFR6iKz11QqjwwWETpYCIi3AREQBERAEREAREQBERAFt+zTaNqnZ/X99Yq3eo3v3qi3z5dTzeJ3fmu+s3B4DORwWoItZwjZHhksodS+WyTatpraLRbtDIaG7RM3qi2zvHeMHVzD+0Zn5w5ZGQ0nC35ea1vrKu3V8Fwt9VNSVlO/vIZ4Xlj43eII4jqPcSFbrs/7cINYuh01qgxUmoQ3EE4AbFXgDoOTZepbyPNvVra1r9rdWbKucfLy+xDOvHNE3oiLjEQREQBERAEREAUW9oDavTbO7M2jt4iqdR1zCaWB3FsDOIM0g+iCCAPnEY5BxGzbV9cW3Z/o+ovtcBLNnuqOm3sOqJiDusHgOBJPQAnjyVDNSXu6ajvtXfL1VGqr6uTflkPAeTWjo0DAA6ABdbbNB48vEn+FfySQhnmzrXKtrLlcKi43Gqlq6ypkMs88rsvkceZJ/wCwBgDguuiK1JYJwiIgCIiAIiIAiIgCIiAIiIAiIgCIiALljnMe2SN7mPY4OY9riHNcDkEEcQQeOVwiAt/2a9sX6XQM0pqaZrdQU8eaeocQBXxtHE/71oGXDqPjDk4NnFeatFVVNDWQ1tFUS01VTyNlhmiduvjeDkOB6EFXj2BbSoNomkhJVGOK+0AbFcYW8ASR8WVo6Mfg8OhDhxwCaxumg8J+LWvdfX4fYhshjmiR0RFxiIIiIAvmV7Io3SSPaxjAXOc44DQOZJX0oO7XmuX2DRkWlbfNuV98Dmzlp4x0g4P/ABkhnmC/wU2nplfYq49zMVl4IC29bQpdoOuJaunlf8C0O9BbIzwBZkb0uPF5APk0NHMFR6iK71VxqgoR6I9SWAiItwEREAREQBERAEREAREQH70FJUV1Uympoy+V54DoB4nwC3S36Moo4wa6eWeTqGHdYP4lcbO6NkdumriAZJXlgPg0dPvz9wW0qgb9v2oWolRRLhUeTa6t/Yv2w7Dp3p433x4nLmk+iXp3yavXaMoZGE0c80EnQPO+3/X81p10t9Xbak09XFuO5tI4tcPEHqpZXUu9up7pROpahvA8WPHNjvELzbX7TaiiajqHxQ/lfH4+jPVufs1p74OWnXDP+H8Ph6oidd6gtNzro+8pKKWRnR/BrT7iSAVs1h0iYax0t07qWOM/q2NOQ8+LvLy/7O3gAAAAADgAF2tz9qq6JcGlSk/Pt9zi7Z7LWXR49U3FeS6/YiWvoKygkDKymkhc75O9yPuI4FdZSpqCjjrrPUwPaCdwuYfBwGQVFY4jK6mybs9ypcpLEovnjocve9pW23KMXmMumeoWzbMdZXDQes6LUNBvvZGe7q6dpx7RASN+P38AQejg0rWUXYnCM4uMujOKekljulDe7PR3e2VDaiirIWzQSN5OY4ZB8vd0XcVaOxnrpxFXs/uE2QwOrLWXHkM5liHqd8D6z+gVl1StXp3p7XW/+R5pR4XgIiLzGpw4hrS5xAAGST0Xn9th1a7W+0a7X9r96kfJ3FD5U0eQzH2uL8dC8q3XaU1K7TGyG7zQSd3V3AC30xBwd6XIcQfERiRw+yqLjgMBWLZKOUrX6L/ZNUu4REXeJQiLuWS13C93eltNqpZKuuqpBHDCzm4/wAGSSeAAJPALDaSywdMkAEkgAcyVnrLovV96gFRadL3isgcMtmjo3924eTiMH0KtLsn2Lad0hSwV13gp7zfsBzp5W70MDvCJp4cPpkbx4/JBwpUJJ5nK4Go32MZYqjn4s0c/I8+r9YL7YJWx3yy3G2OecM9qpnxh58GkjDvQlY1ehl3ttBeLZPbLrRw1lFUN3JYZW7zXD/XwPMdFRXXumpNPbQ7ppWj7yqdT1ogpQBl8gfumJvm4h7R5lezb9yWrzGSw0ZjLJrzGufIyNjXPe9waxrRkucTgADqSeikLT2xXaReoG1Edg9gheAWvr5mwkg/U4vHq0KxGxLZTbdCWyKvr4oavUk0eaipI3m0+RxiizyA5F3N3kMASYvBqt8cZONK5eb/0Yc/Ip7W9n7aTTwmSOjtdY4DPdwVzQ4/jDR+a0HU+mNRaYqGwahstbbXvOGOmj+I8+DXjLXehK9AF17hR0dxoZaG4UsFXSzNLZYJ4w9jx4Fp4FQVb7an/AHIpr9hxnngimvb7sb/RaKXU+lo5JLJnNXSElzqLPzmk8XRZ8eLfMcWworHp9RXqIKcHyN08m+bOqlslqmpcjfhl3sfVcOH5grZ1F2mrkbXdo6hxPcu+JMPqnr6cD6KUQQQCCCDxBHVfOPabRS0+sdn5Z8169/r+p9N9mtbHUaNV/mhy/Tt9P0CIirpYgiIgOtdZRBbKqZ3JkL3fkVEo4ABb/tArhBaW0bT+sqXcR4MbxP54H3rQF9F9ktM69LK1/mfL0X3yfO/a3UqzVRqX5V/L+2AiIrWVQyelb3Waa1LbdQ2/jVW6obPG3ON/HymE9A5pc0+TivRGx3OjvNmorvb5e9pK2BlRA/6THtDgfuK821cLsc6lN22b1Fhnk3qiyVRjYCcnuJcvYT/i7xo8mBcXeqOKtWrt8n9/mR2rlkm5ERVkgKt9t2+ukvGntMxyDcggkr52eLnnu4z6Bsv4lXNST2mro66bbb+d8OipDFSRY6BkTS4fjc9RsrroK/D08F8M/vzPTFYSCIi9ZsFZzshaRgptP1etKmJr6utkfS0biMmOFhw8jwLngg+TB4lVjVx+y/dKGv2QW2jppWGot0k0FVED8ZjjK97SR4FrgQff4FcnepyjpsR7tZ9DWXQlBERU8jC0hmzDTf8AKhNtClNXNc5N1zYHvaYI5GxtjEjW4zvbrepIBJOM4xu6LeFs688LxlY/QZCLH3u92Wx07ai93egtkLjhr6uoZE1x8AXEZ9FxYr7ZL9TuqLHeKC5wsOHvpKhsoafA7pOPVY4JcPFjkDIoiLUH51EMNRTyU9REyaGVhZJG8Za9pGCCOoIOFRvbBo86H19XWRm8aI4qKFzjkmB5O6CepaQ5hPXdz1V6FAfbJsbZtP2PUcbD3tJUuo5SP7ORu80n3OjwPtldbZtQ69Rwdpf8jaL5lZFv+gbkaq2uopXZlpcBuesZ5fdy+5aAsppat9gvlPK527G893J9l3D8jg+i7O+aFazRyil7y5r1X16Hb2PXPR6yMm/dfJ+j+nUk9ERfJj6wF8zSxwwvmleGRsaXOceQA6r6JDQSSAAMknotB1jqAXB5oaN/80YfjvH7Uj/8j8/uXT2vbLNwuUI9F1fkvr5HM3Tc69vpc5dX0Xm/p5mJv9yfdLnJVOBaz5MTT81g5evX1XQRF9ZpqhTWq4LCXJHye62d1jsm8t82ERFIRhTP2Pb662bWHWp7wIbxRSQ7vjLH+sYfRrZR/iUMLY9mF0dZdpGmro14YILpT9449I3PDZP3HOUGqr8SmUPNGJLKwehqIiox5Tzr2g1Zr9oGpK0nPf3erkHuMz8flhYNftXymeuqJ3HJlle8n3uJ/ivxV+gsRSPWERFsAu7ZbtdbLWits9zrLdUgY72lmdG4jnglp4jyPBdJFhpNYYJt2LbXtbVO0O0Wa+3p9zt1wmFM9k0MYcxzgQxzXNaDne3c5yCM8M8VapUP2TEjalpUj/1em/zGq+Cqe90wrtjwLGV2I5hfnUzR09NLUTHdjiY6R58GgZP5BfoujqCB1VYLjTMzvTUksYx4lhH8Vx0svmalDdZ6kuWr9SVeoLrK+SepcTGxzsiCPPxYm+DWjhw5nJPEkr60Vqa6aQ1LS3+0SubPTuG/HvENnj+dE/xaR9xwRxAWDhO9Cxw6tBX2voXhw4ODHLpgmPQuyXKkvNmorvQPL6Stp46iFx5lj2hwz54K7iizss3Z1z2QUcD3777bVTUZPgARI0ejZGj0UpqhairwbZQ8mQtYYUb9pij9s2K33dA34DTztOOW7PHvfu7ykhaRt5LRsd1PvcvYj9+83C20javg15r5mV1KPoeIwiK/Epu2nNV0/szKa6PdHIwYE2CQ8eeOIKydVqmywRlzaozu6MiYST6nA/NRsird3storbXZzWeyax8iyU+1GtqqVfJ47tPPzM3f9R1l1BhaPZ6X+zacl/2j193L3rCIi7mm0tOlrVdMcI4ep1V2qsdl0ssIiL0HnCIiAL5kc9kbnxu3XtGWnwI5L6XDhlpHiEBfH+Ual+gPv/6IqjfpfV/26Kvf0oh8M0yqjMNVNCRgxyOYR4YOF+azGuaU0OuNQ0Thg091qosfZmeB/wAlh134vKTJgiItgEREBs+yf+tHSv8Ae9L/AJrVfBUP2T/1o6V/vel/zWq+Cq+//wCWHoaTCDGeIyERcE0KC7QbFNpnXF5sUsfdikrJGxDxiJ3oj6sLT6rBK621XZPp3aBLDW1klRb7pCzu21lNgl7Mkhr2ng4Ak45EZ544LR7R2Z7BDVMkuupblXQtdl0MMLYN8eBdlxA92D4EK20bzp3UnY8S9CRSRlOyDQVFLsvrKuZpEdddpZoPrMbHHGT+KN49FMq6tpt9FabZTWy200dLR00YihhjGGsaOQC7SrOpu8e6VnmzRvLCjPtPVnsmxe8MD919TLTQN88zsc4fha5SYq89su+tbR2DTMb8vfK+vnaHcg0GOPI8y6T8Km26t2aqC+Of25iPUrciIryShERAEREAREQBERAEJwCUXxNnuX7oJdunAHUoDaf0bn/8vJ+AorafyZH6Mf3f9EXC/qqIvEKz9o62m17a9Sxd2WRzzsqoz9ISRMc4/jLx6KPVYLttWQ0+rbDqFjDuVtE+kkcOQfE/ebnzIlP4FX1dPQ2eJp4S+Hy5EkXlIIiL1GQiIgNn2T/1o6V/vel/zWq+ConsfhfPtW0tHGMu+FYH+jXhx/IFXsVX37/LD0NJhEWA19q20aJ03Lfb06b2dj2xMjhaHSSyOzhjQSBngTxIAAJXDhCU5KMVls0M+i1XZzr7Tmvba+rsVS8TQ49oo6gBk8GeW80Egg9HNJHMZyCFtSTrlXJxksNAIixWp9Q2TTFsdcr/AHOnt9K3OHSuwXn6LWji93k0ErEYuTwllg7l1r6O1WypuVxqGU1HSxOlnlecNYxoySVRTaXqqo1pra4ahma+OOd4ZTRO5xQN4Mb78cT9ZzluG3Ha5V68m+CbXHLQ6dhkD2xvOJKt45PkxyaDxazj4njgNixW3adveni7LPxP+ESRWAiIuwbBERAEREAREQBERAFnNn9sN515p+1CMyNqrnTxSNH0DI3fPo3ePosGpc7JNkN12x0ta5hMNppJqtzum+R3TQfP9YSPsqHU2eHVKfkjDeFkuoiIqKeUivtUabOoNkFwnij36m0PbcYvssBEv/1uefeAqRr0tqIYqinkp542yRSsLHscMhzSMEH0XnntI0vNozXN203KHblHORTvd+0gd8aJ2epLC3PnkdFY9kvzGVT7cyap9jXkRF3SULhxDWlziAAMklcrc9h1pp73ta05b6uIS0/tRnkYeRETHSgHxBLACOuVpZNVwc32WQTP2bNk1VZqiDW+pYu5rXRH4OonNw+Br2kGWTweWkgN+aHHPE4bPqE5OSiomp1M9TY7JkTeQox7SulbtqvZwIbLC6pq6CsZW+zsGXzMax7HNaOrgH5A5nGBxIUnItKLXTYrI9UYTweeNura+1XFlZb6uqoK2BxDZYJHRSRnOCMjBHLBHoVvtv237TqOMxnUgqhjA9oooXEeoYCfUlTb2jNmNsv2nK/VVqpGU99oYjUTOibj2yNgy5rwObw0Za7mcbp4YxUxXHT20a+vjcU2vNZwSppkgXHbPtOrWlj9VzQMIxu09LBF+81m9+a0e5V1dc6x1bcq2qrqpww6apmdLIR4bziThddF7K6a6/wRS9EZCIikAREQBERAEREAREQBERAFbbsXab9g0PctTTR4lu9V3cLsc4IctB/4jpfuCqpZrbW3m70dot0feVlbOyngac4L3kAZ8BxyT0GSvRLSdkpNN6Zttgoc+zUFMynYTzcGjG8fMnifMrjb1fw1KtdX8kR2PlgyaIirBAFXrtk6HNfZKTXNvg3qm3AU9w3RxdTuPxXnx3Hn0EjieSsKvwuFJTXCgqKCtgZPS1MToZonjLXscCHNPkQSFPpr3p7VYuxmLw8nmsi2/a7oer2f63q7DN3klGf11BUOH+2gcfi5PVzeLXeYzyIWoK7wnGyKlHoz1dQt22F3qk0/tYsFxuErYqXvnwSyO5M72N0YcfABzm5PQZK0lDxGCsW1qyDg+6wD0XRU+2cbdNVaUpYbZcIor7a4QGRx1DyyeJo5NbLxyB4OB6AEAYUwWXtFaArIx8Ix3e0ydRLS9630MRcSPeAqdftOpqfKPEvh9OpG4smFFolLtg2aVLA5mr6FmRymbJEfuc0L9qnaxs2p4jK/WVqcAM4ikMjvwtBP5Lyf+W/OOB/szGGbVeXwx2eukqCBC2mkMhPLdDTn8l54QZEEYPPdGfuU/wC23bpRX+w1OmdHxVIpqtpjq6+dndl8R5sjYeIDhwLnYOMgDjkQGrNs2lsork7FjPb0N4rAREXZNgiIgCIiAIiIAiIgCIiAIizGi9OXLVuqKDTtpZmqrZQwPLctiZzdI76rRknxxgcSFiUlFZfQE29jbQ7q6+1Wu6+D+bW/eprcXD5U7m4kePssO7nkS93VqtWsTo7T9u0rpi36etUZZR0MIiZn5Tjzc93i5ziXE+JKyypWs1L1Fzn27eh5pS4nkIiLymoREQGgbdNnVNtF0c6iYY4bvR701tqH8myY4scfoPAAPhhpwd0Kitwo6y3V89BcKWWkrKaQxTwSjDo3g4LSvSlQj2ldj51jSnVGmoGjUNNGBNAMAV8TRwb/ALxo+STzHxT80t7O16/wX4Vj919Ph9iWueOTKeouXtcx7o5GOY9ji17HNIc1wOCCDxBB4YXCs5MEREAREQBERAEREAREQBERAEREAREQBEQkNBJIAHEkoDloc5wa1rnOJwGtGST0AHUq6PZo2XnQ2nXXi8wBuornGO+aeJpIeBEOfHOC7HXA4hoJ0rsv7HJaWWm13qylLJgBJaaGVvGPPKeQHk76Lfm/KPxsbtk1XN116n/ZrfLv9CGyfZBERcIiCIiAIiIAiIgIN7QmxCLVxl1NpSOKm1CBmop8hkdeB4nk2XwdyPJ3Rzaj1tNU0VZNRVtPLTVUDzHNDKwtfG4c2uB4gr0qUcbYtkOndolMaqQC232Nm7DcYmAkgcmSt4d4z1BHQjJz2tBujqSrt5x8/L7EsLMcmUWRbPtD0HqfQd09h1Db3RMe4inq4sup6j7D8c/qnDh1C1hWSE4zXFF5RMERFsAiIgCIiAIiIAiIgCIiAIizOj9L3/V14badO2yavqjgv3BhkTT86R54Mbz4nnyGTwWJSUVlvCBhwCSGgEkkAADJJPIBWc7Pewd9LNTat13SATtxJQ2mVue7PMSTD6Xgz5vN3xuDd12K7DbLocw3i8Ohu+omjLZi39TSn/2mnjnpvnj4BuSDLyruv3XjTrp6ef0IZ2dkERFwiIIiIAiIgCIiAIiIAiIgOnebXbb1bZrbd6GmrqKYbskE8Yexw8wVXPab2ZsvluGz+uawcXG11shI90cpyR7n55/KAVmEXp0+rt07zW/obKTXQ84tS6fvmmbh8H6htNXa6o53Y6hmN/HMtd8l4482kjzWMXpJeLXbLzb5Lfd7fS3Ckk+XBUxNkY73hwIUOay7NOirq589gqq7T9Q7OGRu7+nz4ljzvD3NeB5Lu0b1XLlasP8Aj6/MlVq7lPkUzam7N20K2Oe+1Otl9hHye4n7mU+9kmGj8ZUeXrQet7M9zbnpG+U4b8qT2J74x/8AI0Fv5rp16qmz8EkzdSTNcRfLpGNkMbnta8c2k4I9FyCDyIKnMnKISBzIC+O9i3g3vGZPADPEoD7RZyzaP1beXMFq0te6xr/kyRUMhj9X43R6lSBpvs7bSrqWvraO32SInia2qDn48Q2Lf4+RIUNmpqr/ABySMNpdSI127PbLjebiy3WigqrhWScWwU0RkeR44HIceJPAdVarSHZi0rQFk2prtXXyUfKhi/msB9Gkv/fHuU0ab09YtN0HsNgtNFbKbOSymhDA4+LsfKPmeK5l+9VR5VrL/ZGjsXYrNsz7NN2rnQ1+uqz4MpuDvg6leH1DvJ8gy1nmG7x482lWW0ppuxaVtDLVp62U9vpGcdyJvFx+k5x4ud9ZxJKyyLhanWXah+++Xl2IpScuoREXlNQiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIDQ9rP9AP2T/BVE2g/+IS+4f8AJEXe2olrMfon+n0/2wrabGf9jH9n/REUm69DNhKaIirpCEREAREQBERAEREAREQBERAf/9k=" alt="Petlove"/>
+    <div class="header-divider"></div>
+    <span class="header-title">Gestão de Posições</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <div id="user-chip-area"></div>
+    <button class="btn-logout" onclick="logout()">Sair</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <h1>🐾 Solicitação de Criação de Posições</h1>
+    <p id="hero-sub">Preencha os campos abaixo para solicitar a criação de novas posições.</p>
+    <div class="sla-pill"><div class="sla-dot"></div> SLA: 02 dias úteis para processamento</div>
+  </div>
+</div>
+
+<!-- ADMIN TABS -->
+<div class="tabs" id="admin-tabs" style="display:none">
+  <div class="tab active" onclick="switchTab('tab-form',this)">📋 Formulário</div>
+  <div class="tab" onclick="switchTab('tab-admin',this)">⚡ Painel Admin</div>
+</div>
+
+<!-- FORM TAB -->
+<div id="tab-form" class="tab-content active"><div class="container">
+  <div class="steps">
+    <div class="step"><div class="step-num active" id="sn1">1</div><div class="step-label">Identificação <span>Data</span></div></div>
+    <div class="step-sep"></div>
+    <div class="step"><div class="step-num inactive" id="sn2">2</div><div class="step-label">Posição <span>Empresa e cargo</span></div></div>
+    <div class="step-sep"></div>
+    <div class="step"><div class="step-num inactive" id="sn3">3</div><div class="step-label">Classificação <span>Centro de custo</span></div></div>
+    <div class="step-sep"></div>
+    <div class="step"><div class="step-num inactive" id="sn4">4</div><div class="step-label">Revisão <span>Posições adicionadas</span></div></div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Progresso</span><span id="prog-pct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+  </div>
+  <div class="card" style="border-color:var(--purple-mid)">
+    <div class="card-header"><div class="card-icon">📋</div><div><h2>Identificação da Solicitação</h2><p>Escolha a ação e preencha os dados</p></div></div>
+    <div class="card-body">
+      <!-- AÇÃO: CRIAR OU ATUALIZAR -->
+      <div class="field" style="margin-bottom:20px">
+        <label>O que você deseja fazer? <span class="req">*</span></label>
+        <div class="radio-group" id="acao-group">
+          <label class="radio-option" id="acao-criar-lbl">
+            <input type="radio" name="acao" value="Criar" checked onchange="onAcaoChange()"/>
+            <div class="radio-dot"></div>
+            ＋ Criar nova posição
+          </label>
+          <label class="radio-option" id="acao-atualizar-lbl">
+            <input type="radio" name="acao" value="Atualizar" onchange="onAcaoChange()"/>
+            <div class="radio-dot"></div>
+            ✏️ Atualizar posição existente
+          </label>
+        </div>
+      </div>
+      <!-- CAMPOS CONDICIONAIS DE ATUALIZAÇÃO -->
+      <div id="wrap-atualizar" style="display:none;margin-bottom:18px">
+        <div style="background:var(--yellow-light);border:1.5px solid var(--yellow);border-radius:var(--radius-sm);padding:12px 16px;display:flex;align-items:flex-start;gap:10px;margin-bottom:16px">
+          <span style="font-size:16px">⚠️</span>
+          <div>
+            <div style="font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:#92400E;margin-bottom:2px">Atualização de posição</div>
+            <div style="font-size:12px;font-weight:600;color:#B45309">Informe o ID da posição existente que deseja atualizar e preencha os campos que devem ser alterados.</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>ID da Posição a Atualizar <span class="req">*</span></label>
+            <input type="text" id="f-id-atualizar" placeholder="Ex: 3850"/>
+            <div class="field-error" id="err-id-atualizar">Informe o ID da posição</div>
+          </div>
+          <div class="field">
+            <label>Motivo da Atualização <span class="opt">opcional</span></label>
+            <input type="text" id="f-motivo-atualizar" placeholder="Ex: Correção de cargo"/>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2">
+      <div class="field"><label>ID Espelho (BPs) <span class="opt">opcional</span></label><input type="text" id="f-id-espelho" placeholder="Ex: 3799"/></div>
+      <div class="field"><label>Solicitado em <span class="req">*</span></label><input type="date" id="f-data-solic"/></div>
+      <div class="field span-2" id="wrap-tipo-solicitacao"><label>Tipo <span class="req">*</span></label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="tipo" value="Nova" checked/><div class="radio-dot"></div>Nova</label>
+          <label class="radio-option"><input type="radio" name="tipo" value="Substituição"/><div class="radio-dot"></div>Substituição</label>
+          <label class="radio-option"><input type="radio" name="tipo" value="Reativação"/><div class="radio-dot"></div>Reativação</label>
+        </div>
+      </div>
+      <div class="field span-2"><label>Obs BPs <span class="opt">opcional</span></label><textarea id="f-obs-bps" placeholder="Observações..." rows="2"></textarea></div>
+    </div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-icon">🏢</div><div><h2>Dados da Posição</h2><p>Empresa, UO e cargo</p></div></div>
+    <div class="card-body"><div class="grid-2">
+      <div class="field"><label>Empresa <span class="req">*</span></label><select id="f-empresa"><option value="">Selecione</option></select><div class="field-error" id="err-empresa">Campo obrigatório</div></div>
+      <div class="field"><label>Estabelecimento <span class="req">*</span></label><select id="f-estabelecimento"><option value="">Selecione</option></select><div class="field-error" id="err-estab">Campo obrigatório</div></div>
+      <div class="divider span-2"><div class="divider-line"></div><div class="divider-label">Estrutura Organizacional</div><div class="divider-line"></div></div>
+      <div class="field span-2"><label>Unidade Organizacional (UO) <span class="req">*</span></label>
+        <div class="search-select-wrap"><input type="text" id="f-uo" placeholder="Digite para buscar a UO..." autocomplete="off"/><span class="dropdown-icon">▾</span><div class="ss-dropdown" id="dd-uo"></div></div>
+        <div class="field-error" id="err-uo">Campo obrigatório</div>
+      </div>
+      <div class="field"><label>Gestor Direto <span class="opt">opcional</span></label><input type="text" id="f-gestor" placeholder="Nome do gestor"/></div>
+      <div class="field"><label>Cargo <span class="req">*</span></label>
+        <div class="search-select-wrap"><input type="text" id="f-cargo" placeholder="Digite para buscar o cargo..." autocomplete="off"/><span class="dropdown-icon">▾</span><div class="ss-dropdown" id="dd-cargo"></div></div>
+        <div class="field-error" id="err-cargo">Campo obrigatório</div>
+      </div>
+    </div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-icon">💰</div><div><h2>Classificação Financeira</h2><p>Centro de custo e tipo de posição</p></div></div>
+    <div class="card-body"><div class="grid-2">
+      <div class="field span-2"><label>Centro de Custo <span class="req">*</span></label>
+        <div class="search-select-wrap"><input type="text" id="f-cc" placeholder="Digite para buscar o CC..." autocomplete="off"/><span class="dropdown-icon">▾</span><div class="ss-dropdown" id="dd-cc"></div></div>
+        <div class="field-error" id="err-cc">Campo obrigatório</div>
+      </div>
+      <div class="field"><label>Tipo de Posição <span class="req">*</span></label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="tipo-posicao" value="Margem" checked/><div class="radio-dot"></div>Margem</label>
+          <label class="radio-option"><input type="radio" name="tipo-posicao" value="SG&A"/><div class="radio-dot"></div>SG&A</label>
+        </div>
+      </div>
+      <div class="field"><label>Aprovação pela Bruna Passarelli / Bruno Junqueira?</label>
+        <div class="toggle-group">
+          <button type="button" class="toggle-btn yes" id="sgaYes" onclick="setToggle('yes')">✓ Sim</button>
+          <button type="button" class="toggle-btn no" id="sgaNo" onclick="setToggle('no')">✗ Não</button>
+        </div>
+        <div class="field-hint">Obrigatório para posições SG&A</div>
+      </div>
+
+      <div class="field span-2"><label>Obs <span class="opt">opcional</span></label><input type="text" id="f-obs" placeholder="Observações adicionais"/></div>
+    </div></div>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-add" onclick="addEntry()">＋ Adicionar Posição</button>
+    <button class="btn btn-secondary" onclick="clearForm()">↺ Limpar</button>
+  </div>
+  <div class="card" style="margin-top:24px">
+    <div class="card-header"><div class="card-icon">📊</div><div><h2>Minhas Posições</h2><p>Solicitações adicionadas nesta sessão</p></div></div>
+    <div class="card-body" style="padding:14px 0 0">
+      <div class="entries-header" style="padding:0 24px 12px">
+        <h3>Total <span class="count-badge" id="entry-count">0</span></h3>
+        <button class="btn btn-export" onclick="exportCSV(false)">⬇ Exportar CSV</button>
+      </div>
+      <div id="empty-state" class="empty-state"><div class="ei">🐾</div><p>Nenhuma posição adicionada.<br>Preencha e clique em <strong>Adicionar Posição</strong>.</p></div>
+      <div class="entries-table-wrap" id="table-wrap" style="display:none">
+        <table><thead><tr><th>#</th><th>Data</th><th>Ação</th><th>Tipo</th><th>Empresa</th><th>UO</th><th>Cargo</th><th>CC</th><th>Tipo Pos.</th><th>SG&A</th><th>Status</th><th>ID Posição</th><th></th></tr></thead><tbody id="entries-body"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ADMIN TAB -->
+<div id="tab-admin" class="tab-content"><div class="container">
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-num" id="st-total">0</div><div class="stat-label">Total posições</div></div>
+    <div class="stat-card g"><div class="stat-num" id="st-nova">0</div><div class="stat-label">Novas</div></div>
+    <div class="stat-card c"><div class="stat-num" id="st-sga">0</div><div class="stat-label">SG&A</div></div>
+    <div class="stat-card y"><div class="stat-num" id="st-bps">0</div><div class="stat-label">BPs ativos</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-icon">🗂</div><div><h2>Todas as Posições</h2><p>Consolidado de todos os BPs</p></div></div>
+    <div class="card-body" style="padding:14px 0 0">
+      <div class="entries-header" style="padding:0 24px 12px">
+        <div class="adm-filters">
+          <label>BP:</label>
+          <select id="filter-bp" onchange="renderAdminTable()">
+            <option value="">Todos</option>
+            <option value="bruna.passarelli@petlove.com.br">Bruna Passarelli</option>
+            <option value="fernanda.molina@petlove.com.br">Fernanda Molina</option>
+            <option value="julia.alves@petlove.com.br">Júlia Alves</option>
+            <option value="luiza.pesinato@petlove.com.br">Luiza Pesinato</option>
+            <option value="paula.zanella@petlove.com.br">Paula Zanella</option>
+            <option value="taynara.orlandini@petlove.com.br">Taynara Orlandini</option>
+            <option value="thais.satiro@petlove.com.br">Thais Satiro</option>
+            <option value="taiana.takigami@petlove.com.br">Yukiko Takigami</option>
+          </select>
+          <label>Status:</label>
+          <select id="filter-status" onchange="renderAdminTable()"><option value="">Todos</option><option>Solicitado</option><option>Em análise</option><option>Aguardando</option><option>Criado</option></select>
+          <label>Tipo:</label>
+          <select id="filter-tipo" onchange="renderAdminTable()"><option value="">Todos</option><option>Margem</option><option>SG&A</option></select>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-export" onclick="exportCSV(true)">⬇ Exportar Tudo</button>
+          <button class="btn btn-secondary" onclick="clearAllEntries()">🗑 Limpar Tudo</button>
+        </div>
+      </div>
+      <div id="admin-empty" class="empty-state"><div class="ei">📭</div><p>Nenhuma posição registrada ainda.</p></div>
+      <div class="entries-table-wrap" id="admin-wrap" style="display:none">
+        <table><thead><tr><th>#</th><th>Data</th><th>BP</th><th>Tipo</th><th>Empresa</th><th>UO</th><th>Cargo</th><th>CC</th><th>Tipo Pos.</th><th>SG&A</th><th>Status ✏️</th><th>ID Posição ✏️</th><th>Obs</th><th>🗑</th></tr></thead><tbody id="admin-body"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div></div>
+  </div>
+</div>
+
+<div class="toast-container" id="tc"></div>
+
+<script>
+const DATA_PLACEHOLDER = null; // replaced below
+const DATA = {
+  empresa: ["DOGHERO AGENCIA ONLINE DE SERVICOS PARA ANIMAIS DE ESTIMACAO LTDA","NEW PROVET - DIAGNOSTICOS, ESPECIALIDADES E EVENTOS VETERINARIOS LTDA.","PETLOVE SAUDE LTDA","PETLOVE TECNOLOGIA LTDA","PETSUPERMARKET COMERCIO DE PRODUTOS PARA ANIM","PROVET  EVENTOS PESQ DIAGN E ESPEC VET","PROVET SERVIÇOS DE APOIO ADMNISTRATIVO LTDA","PROVET-INSTITUTO BRASILEIRO DE DIAGNOSTICOS E ESPECIALIDADES VETERINARIAS LTDA"],
+  estabelecimento: ["DOGHERO AGENCIA ONLINE DE SERVICOS PARA ANIMAIS DE ESTIMACAO LTDA","NEW PROVET - DIAGNOSTICOS, ESPECIALIDADES E EVENTOS VETERINARIOS LTDA.","PETLOVE - FILIAL MG","PETLOVE - FILIAL PE","PETLOVE MATRIZ","PETLOVE SAUDE LTDA","PETLOVE TECNOLOGIA LTDA","PETSUPERMARKET - SAUDE / POA","PETSUPERMARKET-SAUDE /SP","PROVET  EVENTOS PESQ DIAGN E ESPEC VET","PROVET - CARINAS","PROVET SERVIÇOS DE APOIO ADMNISTRATIVO LTDA","PROVET-INDIANOPOLIS","PROVET-VILA PROGREDIOR"],
+  unidade_organizacional: ["COORD_ABASTECIMENTO - CD ITAPEVA","COORD_ALIMENTOS & HIGIENE","COORD_AQUISICAO, DELIVERY & OMNI_01","COORD_BUSINESS PARTNERS_CD","COORD_CASOS ESPECIAIS & PROVET","COORD_CATEGORIA","COORD_CONTABIL_1","COORD_CREATIVE","COORD_CRM","COORD_CRM ECOMM","COORD_CRM SAUDE","COORD_CROSS","COORD_DEMAND PLANNING","COORD_DES - SAUDE","COORD_DES - SAUDE_1","COORD_DES - SAUDE_2","COORD_DESIGN","COORD_DES_DOGHERO & VETSMART_1","COORD_DES_DOGHERO & VETSMART_2","COORD_EFICIENCIA","COORD_ENGENHARIA DE DADOS","COORD_EQUIPE_ECOMM & CROSS","COORD_ESG","COORD_EXPANSAO & DOGHERO MARKETPLACE","COORD_EXPERIENCIA_2","COORD_EXPERIENCIA_3","COORD_FIDELIDADE, EXPERIENCIA & CROSS-SELL","COORD_FISCAL_1","COORD_FP&A_1","COORD_FP&A_2","COORD_FRANQUIAS_1","COORD_GESTAO DE PEDIDOS","COORD_INOVACAO","COORD_INSIDE SALES SP - ÁREA 2","COORD_INSTOCK MGMT","COORD_LOGISTICA - CD ITAPEVA","COORD_LOJA OPERACAO_2","COORD_LOJA OPERACAO_3","COORD_LOJA OPERACAO_4","COORD_MARCAS EXCLUSIVAS","COORD_MARKETING ANALYTICS","COORD_MINIHUB BELEM","COORD_MKT_2","COORD_MKT_E-COMMERCE","COORD_NOVOS NEGOCIOS","COORD_OMNI","COORD_OP PROVET","COORD_OPE - CADASTRO","COORD_OPE - LABORATORIO","COORD_OPE DADOS","COORD_OPE PROVET","COORD_PARCERIAS & ERP","COORD_PERFORMANCE","COORD_PERFORMANCE ECOMM","COORD_PERFORMANCE SAUDE","COORD_PETLOG_3","COORD_PETLOG_4","COORD_PETLOG_5","COORD_PETLOG_6","COORD_PLANEJAMENTO OPS_2","COORD_PLANEJAMENTO OPS_3","COORD_PRICING","COORD_PRODUTO & INOVACAO","COORD_PROJETOS","COORD_PROVET - LABORATORIO_1","COORD_PROVET - LABORATORIO_2","COORD_PROVET - LABORATORIO_4","COORD_PX - APOIO","COORD_PX - SAUDE","COORD_PX - TI","COORD_PX_PLANEJAMENTO","COORD_SAP","COORD_SRE_2","COORD_TALENT MANAGEMENT","COORD_TESOURARIA_1","DIREXEC_COMERCIAL, LOJAS FISICAS & FRANQUIAS","DIREXEC_DIGITAL_VIRGILIO","DIREXEC_ECOMMERCE","DIREXEC_FINANCE & JURIDICO","DIREXEC_FINTECH","DIREXEC_MARKETING & MARCAS EXCLUSIVAS","DIREXEC_PEOPLE, COMUNICACAO & ESG","DIREXEC_SAUDE, SERVICOS, B2B & CLINICAS","DIR_COMERCIAL & TRADE","DIR_COMERCIAL B2B SAUDE","DIR_DADOS","DIR_DESENVOLVIMENTO","DIR_E-COMMERCE, OPERACOES & PX","DIR_FINTECH","DIR_MIGRAÇÃO","DIR_PROVET","DIR_SAUDE","DIR_SAUDE, SERVICOS, B2B & CLINICAS","DIR_SAUDE, SERVICOS, B2B & CLINICAS_2","EQUIPE - PX apoio","EQUIPE_ABASTECIMENTO - CD ITAPEVA","EQUIPE_ABASTECIMENTO - CD ITAPEVA_1","EQUIPE_ABASTECIMENTO - CD ITAPEVA_2","EQUIPE_ABASTECIMENTO - CD ITAPEVA_3","EQUIPE_AIRI-SP","EQUIPE_AIRI-SP_1","EQUIPE_ALIMENTOS & HIGIENE","EQUIPE_AQUISICAO, DELIVERY & OMNI","EQUIPE_AQUISICAO, DELIVERY & OMNI_01","EQUIPE_AQUISICAO, DELIVERY & OMNI_1","EQUIPE_ARQUITETURA, EFICIENCIA & CORPORATE","EQUIPE_ATD_CASOS ESPECIAIS","EQUIPE_ATENDIMENTO_PROVET","EQUIPE_ATENDIMENTO_PROVET_02","EQUIPE_AUDIOVISUAL","EQUIPE_AUDITORIA","EQUIPE_BRANDING","EQUIPE_BRAZ LEME-SP","EQUIPE_BUSINESS INTELLIGENCE","EQUIPE_BUSINESS INTELLIGENCE_1","EQUIPE_BUSINESS PARTNERS","EQUIPE_BUSINESS PARTNERS_CD","EQUIPE_CAMPANHAS","EQUIPE_CAMPO BELO-SP","EQUIPE_CATEGORIA A&B","EQUIPE_CATEGORIA ALIMENTOS-1","EQUIPE_CATEGORIA H&B","EQUIPE_CATEGORIA MEDICINA","EQUIPE_CIDADE JARDIM-SP","EQUIPE_CIDADE JARDIM-SP_1","EQUIPE_COMERCIAL & TRADE","EQUIPE_COMERCIAL B2B SAUDE","EQUIPE_COMERCIAL PROVET","EQUIPE_COMPRAS","EQUIPE_COMPRAS_dirHEAD","EQUIPE_COMUNICACAO","EQUIPE_CONTABIL","EQUIPE_CONTABIL_1","EQUIPE_CREATIVE","EQUIPE_CREATIVE ECOMM","EQUIPE_CRM","EQUIPE_CRM ECOMM","EQUIPE_CRM SAUDE","EQUIPE_CROSS","EQUIPE_CX - QUALIDADE","EQUIPE_CX_1","EQUIPE_CX_11","EQUIPE_CX_2","EQUIPE_CX_3","EQUIPE_CX_4","EQUIPE_CX_5","EQUIPE_CX_6","EQUIPE_CX_7","EQUIPE_CX_8","EQUIPE_CX_9","EQUIPE_DADOS - ECOMM","EQUIPE_DADOS - ECOMM & MARKETING","EQUIPE_DES - SAUDE_1","EQUIPE_DES - SAUDE_2","EQUIPE_DES - SAUDE_3","EQUIPE_DES - SAUDE_4","EQUIPE_DES -PROJETOS","EQUIPE_DESENVOLVIMENTO - SAUDE","EQUIPE_DESIGN","EQUIPE_DESIGN - B2B2, E-COMMERCE, SAUDE & SERVICOS","EQUIPE_DESIGN MKT","EQUIPE_DES_DOGHERO & VETSMART","EQUIPE_DES_DOGHERO & VETSMART_1","EQUIPE_DES_DOGHERO & VETSMART_2","EQUIPE_DIGITAL - SAUDE","EQUIPE_DOGHERO MARKETPLACE","EQUIPE_ECOMM & CROSS","EQUIPE_ECOMM & CROSS_1","EQUIPE_EFICIENCIA","EQUIPE_ENGENHARIA DE DADOS","EQUIPE_ENGENHARIA DE DADOS_1","EQUIPE_ESG","EQUIPE_ESP_FIDELIDADE, EXPERIENCIA & CROSS-SELL","EQUIPE_EXC OPS","EQUIPE_EXPANSAO","EQUIPE_EXPANSAO & DOGHERO MARKETPLACE","EQUIPE_EXPEDICAO - CD ITAPEVA","EQUIPE_EXPERIENCIA_2","EQUIPE_EXPERIENCIA_3","EQUIPE_FACILITIES - CD ITAPEVA","EQUIPE_FACILITIES MATRIZ","EQUIPE_FID., EXP. & CROSS-SELL","EQUIPE_FIDELIDADE, EXPERIENCIA & CROSS-SELL","EQUIPE_FISCAL & TRIBUTARIO","EQUIPE_FISCAL_1","EQUIPE_FISCAL_2","EQUIPE_FP&A","EQUIPE_FP&A_1","EQUIPE_FRANQUIAS","EQUIPE_FRANQUIAS_DirHea","EQUIPE_GESTAO CLINICAS","EQUIPE_GESTAO CLINICAS_2","EQUIPE_GESTAO CLINICAS_3","EQUIPE_HEMATOLOGIA PROVET","EQUIPE_HROPS","EQUIPE_IMUNOLOGIA PROVET","EQUIPE_INSIDE SALES","EQUIPE_INSIDE SALES POA - ÁREA 2","EQUIPE_INSIDE SALES POA - ÁREA 3","EQUIPE_INSIDE SALES SP","EQUIPE_INSIDE SALES SP - ÁREA 1","EQUIPE_INSIDE SALES SP - ÁREA 2","EQUIPE_INSIDE SALES SP - ÁREA 3","EQUIPE_INSIDE SALES SP - ÁREA 4","EQUIPE_INSTOCK MGMT","EQUIPE_INSTOCK MGMT - CADASTRO","EQUIPE_INSTOCK MGMT - PLANEJAMENTO","EQUIPE_INTELIGENCIA ARTIFICIAL","EQUIPE_IS & RETENCAO","EQUIPE_IS_SAUDE","EQUIPE_JURIDICO","EQUIPE_JURITI-SP","EQUIPE_LOG - CD ITAPEVA_1","EQUIPE_LOG - CD ITAPEVA_10","EQUIPE_LOG - CD ITAPEVA_11","EQUIPE_LOG - CD ITAPEVA_12","EQUIPE_LOG - CD ITAPEVA_13","EQUIPE_LOG - CD ITAPEVA_2","EQUIPE_LOG - CD ITAPEVA_3","EQUIPE_LOG - CD ITAPEVA_4","EQUIPE_LOG - CD ITAPEVA_5","EQUIPE_LOG - CD ITAPEVA_6","EQUIPE_LOG - CD ITAPEVA_7","EQUIPE_LOG - CD ITAPEVA_8","EQUIPE_LOG - CD ITA_1","EQUIPE_LOG - CD ITA_2","EQUIPE_LOG - MATRIZ","EQUIPE_LOGISTICA - CD PERNAMBUCO_1","EQUIPE_LOGISTICA - CD PERNAMBUCO_3","EQUIPE_LOGISTICA - CD PERNAMBUCO_4","EQUIPE_LOGISTICA - CD PERNAMBUCO_5","EQUIPE_LOGISTICA - MINIHUB RJ","EQUIPE_LOJA OPERACAO","EQUIPE_LOJA OPERACAO_2","EQUIPE_M&A","EQUIPE_MANUTENCAO AUT","EQUIPE_MARCAS EXCLUSIVAS","EQUIPE_MARKETING ANALYTICS","EQUIPE_ME_QUALIDADE","EQUIPE_MINIHUB BELEM","EQUIPE_MKT_E-COMMERCE","EQUIPE_NOVOS NEGOCIOS","EQUIPE_OMNI","EQUIPE_OPE - CADASTRO","EQUIPE_OPE - CD ITAPEVA 3","EQUIPE_OPE - HUB BELEM_03","EQUIPE_OPE - LABORATORIO","EQUIPE_OPE DADOS","EQUIPE_OPERACOES - CD ITAPEVA","EQUIPE_OPERACOES DE TECNOLOGIA","EQUIPE_OPERACOES DE TECNOLOGIA_1","EQUIPE_OPERACOES SAUDE","EQUIPE_OPS - FISCAL","EQUIPE_OPS - MATRIZ","EQUIPE_OPS - MATRIZ_1","EQUIPE_OPS - MATRIZ_3","EQUIPE_ORIENTACAO VETERINARIA","EQUIPE_OSCAR FREIRE-SP","EQUIPE_OUTRAS CATEGORIAS","EQUIPE_PARCERIAS & ERP","EQUIPE_PCR PROVET","EQUIPE_PEOPLE COSTS","EQUIPE_PERDIZES","EQUIPE_PERDIZES_1","EQUIPE_PERFORMANCE","EQUIPE_PERFORMANCE ECOMM","EQUIPE_PERFORMANCE SAUDE","EQUIPE_PETLOG","EQUIPE_PETLOG_1","EQUIPE_PETLOG_2 diretos","EQUIPE_PETLOG_3","EQUIPE_PETLOG_4","EQUIPE_PETLOG_5_diretoscoord","EQUIPE_PETLOG_6","EQUIPE_PETLOG_7","EQUIPE_PETLOG_8","EQUIPE_PLANEJAMENTO LOJAS","EQUIPE_PLANEJAMENTO OPERACAO","EQUIPE_PLANEJAMENTO OPS","EQUIPE_PLANEJAMENTO OPS_3","EQUIPE_PORTUGAL-SP","EQUIPE_PRICING","EQUIPE_PRODUTO & INOVACAO","EQUIPE_PRODUTOS DE SAUDE","EQUIPE_PROJETOS","EQUIPE_PROVET - ADM","EQUIPE_PROVET - AUDITORIA","EQUIPE_PROVET - AUX, CLINICA E IMAGEM","EQUIPE_PROVET - CAT","EQUIPE_PROVET - COMERCIAL","EQUIPE_PROVET - LABORATORIO","EQUIPE_PROVET - LABORATORIO_1","EQUIPE_PROVET - LABORATORIO_2","EQUIPE_PROVET - LABORATORIO_3","EQUIPE_PROVET - LOGISTICA","EQUIPE_PROVET - MORUMBI","EQUIPE_PROVET - RECEPCAO","EQUIPE_PROVET - TECNICO AUX CLINICA E IMAGEM","EQUIPE_PX - APOIO","EQUIPE_PX - SAUDE_2","EQUIPE_PX - TI","EQUIPE_PX_PLANEJAMENTO","EQUIPE_PX_PLANEJAMENTO dir","EQUIPE_PX_WFM","EQUIPE_QUALIDADE","EQUIPE_REV MGMT","EQUIPE_SANTOS-SP","EQUIPE_SANTOS-SP_2","EQUIPE_SAP","EQUIPE_SAUDE - AUDITORIA, CONTAS MEDICAS & REEMBOLSO","EQUIPE_SAUDE - AUDITORIA, CONTAS MEDICAS & REEMBOLSO_1","EQUIPE_SAUDE - PRICING & FP&A","EQUIPE_SAUDE - RELACIONAMENTO","EQUIPE_SDR","EQUIPE_SEPARACAO","EQUIPE_SEPARACAO - CD ITAPEVA","EQUIPE_SEPARACAO_1","EQUIPE_SEPARACAO_2","EQUIPE_SOCRATES-SP","EQUIPE_SRE","EQUIPE_SRE_2","EQUIPE_TALENT ACQUISITION","EQUIPE_TALENT MANAGEMENT","EQUIPE_TALENT MANAGEMENT & ESG","EQUIPE_TESOURARIA","EQUIPE_TESOURARIA_1","EQUIPE_TESOURARIA_2","EQUIPE_TOTAL REWARDS","EQUIPE_TRADE_2","EQUIPE_TRANSPORTES - CD_2","EQUIPE_TRANSPORTES - SP","EQUIPE_TREINAMENTO IS","EQUIPE_TUTOIA-SP","EQUIPE_VETUS","EQUIPE_WAVE_1","EQUIPE_WAVE_2","EQUIPE_WAVE_dir","ESPECIALISTA_FIDELIDADE, EXPERIENCIA & CROSS-SELL","ESPECIALISTA_OPE PROVET","ESP_BUSINESS INTELLIGENCE","GERENTE_OPERACOES DE TECNOLOGIA","GER_AQUISICAO, DELIVERY & OMNI","GER_BUSINESS INTELLIGENCE","GER_BUSINESS PARTNERS","GER_CATEGORIA A&B","GER_CATEGORIA ALIMENTOS-1","GER_CATEGORIA H&B","GER_CATEGORIA MEDICINA","GER_COMERCIAL PROVET","GER_COMUNICACAO","GER_CRM","GER_CUSTOMER SERVICE","GER_DADOS - ECOMM","GER_DES - PROJETOS","GER_DESENVOLVIMENTO - SAUDE","GER_DES_DOGHERO & VETSMART","GER_ECOMM, SERVICOS, B2B, LOJAS & N2","GER_ENGENHARIA DE DADOS","GER_EXC OPS","GER_EXPANSAO","GER_FIDELIDADE, EXPERIENCIA & CROSS-SELL","GER_FP&A","GER_GESTAO VETERINARIA CLINICAS","GER_INSIDE SALES","GER_INSTOCK MGMT","GER_LOJA OPERACAO","GER_MARKETING & BRANDING","GER_NOVOS NEGOCIOS SAUDE","GER_OPE - LABORATORIO","GER_OPE FRANQUIAS","GER_OPERACOES - CD PERNAMBUCO","GER_OPERACOES SAUDE","GER_PARCERIAS & DOGHERO","GER_PETLOG_2","GER_PETLOG_3","GER_PETLOG_4","GER_PLANEJAMENTO LOJAS","GER_PLANEJAMENTO OPERACAO","GER_PLANEJAMENTO OPS","GER_PLANN E INSIGHTS","GER_PROVET","GER_PROVET - ADM","GER_PROVET - ATEND. DOM","GER_PROVET - B2C","GER_PROVET - COMERCIAL","GER_PROVET - LABORATORIO","GER_PROVET - T.I","GER_PX - APOIO","GER_SAUDE - AUDITORIA, CONTAS MEDICAS & REEMBOLSO","GER_SAUDE - PRICING & FP&A","GER_SRE","GER_TALENT ACQUISITION","GER_TALENT MANAGEMENT & ESG","GER_TRADE LOJAS","HEAD_ARQUITETURA, EFICIENCIA & CORPORATE","HEAD_COMERCIAL & TRADE_2","HEAD_COMPRAS","HEAD_CONTABIL","HEAD_DADOS - ECOMM & MARKETING","HEAD_DESENVOLVIMENTO_2","HEAD_DESIGN - B2B2, E-COMMERCE, SAUDE & SERVICOS","HEAD_DIGITAL - SAUDE","HEAD_ECOMM & CROSS","HEAD_EXPANSAO E INFRA","HEAD_FISCAL & TRIBUTARIO","HEAD_FRANQUIAS","HEAD_HROPS, TOTAL REWARDS & ANALYTICS_GRAZIELE","HEAD_INTELIGENCIA ARTIFICIAL","HEAD_M&A","HEAD_MARKETING & VENDAS","HEAD_MARKETPLACE","HEAD_OPERACOES - CD ITAPEVA","HEAD_OPERACOES - TRANSPORTES","HEAD_OPERACOES DE TECNOLOGIA","HEAD_PERFORMANCE","HEAD_PERFORMANCE_1","HEAD_PRODUTO & INOVACAO","HEAD_PX","HEAD_REV MGMT","HEAD_REVENUE & GROWTH","HEAD_SAUDE - RELACIONAMENTO","HEAD_SUPPLY CHAIN MGMT","HEAD_TESOURARIA","LIDER_JURITI-SP","LIDER_MINIHUB BELEM","LID_ABASTECIMENTO - CD ITAPEVA_1","LID_ABASTECIMENTO - CD ITAPEVA_2","LID_ABASTECIMENTO - CD ITAPEVA_3","LID_ABASTECIMENTO - CD ITAPEVA_5","LID_EXPERIENCIA_3","LID_LOG - CD ITAPEVA_1","LID_LOG - CD ITAPEVA_11","LID_LOG - CD ITAPEVA_13","LID_LOG - CD ITAPEVA_14","LID_LOG - CD ITAPEVA_15","LID_LOG - CD ITAPEVA_2","LID_LOG - CD ITAPEVA_3","LID_LOG - CD ITAPEVA_4","LID_LOG - CD ITAPEVA_5","LID_LOG - CD ITAPEVA_6","LID_LOG - CD ITAPEVA_8","LID_LOG - CD ITA_1","LID_LOGISTICA - CD PERNAMBUCO_1","LID_LOGISTICA - CD PERNAMBUCO_3","LID_LOGISTICA - CD PERNAMBUCO_4","LID_LOGISTICA - CD PERNAMBUCO_5","LID_LOGISTICA - MINIHUB RJ","LID_MANUTENCAO AUT","LID_OPS - FISCAL","LID_OPS - MATRIZ_1","LID_OPS - MATRIZ_2","LID_PROVET - LABORATORIO_1","LID_SEPARACAO - CD ITAPEVA","LID_SEPARACAO_1","LID_SEPARACAO_2","LID_WAVE_1","LID_WAVE_2","MIGRAÇÃO","PEOPLE OPS","PRES_PRESIDENCIA","People Tech","SUP - PX apoio","SUP_ABASTECIMENTO - CD ITAPEVA","SUP_ATD_CASOS ESPECIAIS","SUP_ATENDIMENTO_PROVET","SUP_ATENDIMENTO_PROVET_02","SUP_AUDIOVISUAL","SUP_AUDITORIA","SUP_BRANDING","SUP_BRAZ LEME-SP","SUP_CIDADE JARDIM-SP","SUP_CREATIVE ECOMM","SUP_CX - QUALIDADE","SUP_CX_1","SUP_CX_11","SUP_CX_2","SUP_CX_3","SUP_CX_4","SUP_CX_5","SUP_CX_6","SUP_CX_7","SUP_CX_8","SUP_CX_9","SUP_DESIGN MKT","SUP_DOGHERO MARKETPLACE","SUP_EXPANSAO","SUP_FACILITIES","SUP_FACILITIES - CD ITAPEVA","SUP_FISCAL & TRIBUTARIO","SUP_GESTAO CLINICAS","SUP_GESTAO CLINICAS_2","SUP_GESTAO CLINICAS_3","SUP_INSIDE SALES POA - ÁREA 2","SUP_INSIDE SALES POA - ÁREA 3","SUP_INSIDE SALES SP","SUP_INSIDE SALES SP - ÁREA 1","SUP_INSIDE SALES SP - ÁREA 5","SUP_INSTOCK MGMT - CADASTRO","SUP_INSTOCK MGMT - PLANEJAMENTO","SUP_IS & RETENCAO","SUP_IS_SAUDE","SUP_JURITI-SP","SUP_LOGISTICA - CD ITAPEVA","SUP_LOGISTICA - CD PERNAMBUCO_2","SUP_MANUTENCAO","SUP_ME_PX","SUP_ME_QUALIDADE","SUP_OPERACOES - CD ITAPEVA","SUP_OSCAR FREIRE-SP","SUP_PERDIZES","SUP_PERDIZES_1","SUP_PETLOG_6","SUP_PRODUTOS DE SAUDE","SUP_PROVET -  ATENDIMENTO 2","SUP_PROVET -  ATENDIMENTO 3","SUP_PROVET - CAT","SUP_PROVET - COMERCIAL","SUP_PROVET - LABORATORIO_2","SUP_PROVET - LABORATORIO_3","SUP_PROVET - LOGISTICA","SUP_PROVET - MORUMBI","SUP_PROVET - T.I.","SUP_PROVET - TEC LABORATORIO 2","SUP_PX - SAUDE","SUP_PX_PLANEJAMENTO","SUP_PX_WFM","SUP_SANTOS-SP","SUP_SANTOS-SP_1","SUP_SANTOS-SP_2","SUP_SAUDE - AUDITORIA, CONTAS MEDICAS & REEMBOLSO","SUP_SDR","SUP_SEPARACAO","SUP_TESOURARIA_2","SUP_TRADE LOJAS_2","SUP_TRANSPORTES - CD_2","SUP_TREINAMENTO IS","SUP_WAVE","TOTAL REWARDS"],
+  cargo: ["ADVOGADO PL","ADVOGADO SR","AGENTE DE ATENDIMENTO","ANALISTA ADMINISTRATIVO JR","ANALISTA BACKOFFICE JR","ANALISTA BACKOFFICE PL","ANALISTA COMERCIAL JR","ANALISTA COMERCIAL PL","ANALISTA COMERCIAL SR","ANALISTA CONTABIL PL","ANALISTA CONTABIL SENIOR","ANALISTA CONTABIL SR","ANALISTA CS JR","ANALISTA CX JR","ANALISTA CX SR","ANALISTA DE ATENDIMENTO","ANALISTA DE ATENDIMENTO PL","ANALISTA DE ATENDIMENTO SR","ANALISTA DE AUDITORIA JR","ANALISTA DE BI JR","ANALISTA DE BI PL","ANALISTA DE BI SR","ANALISTA DE CADASTRO JR","ANALISTA DE CADASTRO PL","ANALISTA DE CASOS ESPECIAIS","ANALISTA DE CHATBOT","ANALISTA DE COM E APRENDIZAGEM","ANALISTA DE COMPRAS JR","ANALISTA DE COMPRAS PL","ANALISTA DE COMPRAS SR","ANALISTA DE CONTAS MÉDICAS JR","ANALISTA DE CONTAS MÉDICAS PL","ANALISTA DE CONTROL DESK JR","ANALISTA DE CONTROL DESK PL","ANALISTA DE CONTROLES INTERNOS SENIOR","ANALISTA DE DADOS JR","ANALISTA DE DADOS PL","ANALISTA DE DADOS PX SR","ANALISTA DE DADOS SR","ANALISTA DE DESIGN JR","ANALISTA DE ENCANTAMENTO JR","ANALISTA DE ENCANTAMENTO PL","ANALISTA DE ESG PL","ANALISTA DE EXC OPERACIONAL SR","ANALISTA DE FACILITIES","ANALISTA DE FACILITIES JR","ANALISTA DE FRANQUIAS SR","ANALISTA DE FRAUDE PL","ANALISTA DE FRAUDE SR","ANALISTA DE GROWTH PL","ANALISTA DE INOVACAO JR","ANALISTA DE INOVACAO SR","ANALISTA DE INTELIGENCIA COMERCIAL","ANALISTA DE LABORATÓRIO I","ANALISTA DE LEGALIZACAO PL","ANALISTA DE LOGISTICA JR","ANALISTA DE LOGISTICA SR","ANALISTA DE M&A PL","ANALISTA DE MANUTENÇÃO JR","ANALISTA DE MARKETING JR","ANALISTA DE MARKETING PL","ANALISTA DE MARKETING SR","ANALISTA DE MARKETPLACE JR","ANALISTA DE MIDIA SR","ANALISTA DE NEGOCIOS SR","ANALISTA DE OPERACOES JR","ANALISTA DE OPERACOES PL","ANALISTA DE OPERACOES SR","ANALISTA DE PARCERIAS PL","ANALISTA DE PERFORMANCE JR","ANALISTA DE PLANEJAMENTO JR","ANALISTA DE PLANEJAMENTO PL","ANALISTA DE PLANEJAMENTO SR","ANALISTA DE PMO PL","ANALISTA DE PRICING JR","ANALISTA DE PRICING PL","ANALISTA DE PRICING SR","ANALISTA DE PROCESSOS JR","ANALISTA DE PROCESSOS PL","ANALISTA DE PROCESSOS SR","ANALISTA DE PRODUTOS PL","ANALISTA DE PROJETOS JR","ANALISTA DE PROJETOS PL","ANALISTA DE PROJETOS SR","ANALISTA DE QUALIDADE JR","ANALISTA DE QUALIDADE PL","ANALISTA DE QUALIDADE SR","ANALISTA DE REEMBOLSO JR","ANALISTA DE RELACIONAMENTO JR","ANALISTA DE RELACIONAMENTO PL","ANALISTA DE RETENCAO","ANALISTA DE RH JR","ANALISTA DE RH PL","ANALISTA DE RH SR","ANALISTA DE SDR JR","ANALISTA DE SISTEMAS (PX) SR","ANALISTA DE SISTEMAS PL","ANALISTA DE SUPORTE JR","ANALISTA DE SUPORTE PL","ANALISTA DE SUPORTE SR","ANALISTA DE SUPPLY CHAIN JR","ANALISTA DE SUPPLY CHAIN PL","ANALISTA DE SUPPLY CHAIN SR","ANALISTA DE TI JR","ANALISTA DE TI PL","ANALISTA DE TI SR","ANALISTA DE TRANSPORTES JR","ANALISTA DE TRANSPORTES PL","ANALISTA DE TRANSPORTES SR","ANALISTA DE TREINAMENTO JR","ANALISTA DE UX JR","ANALISTA DE UX PL","ANALISTA DE UX SR","ANALISTA DE WFM PL","ANALISTA DE WMS JR","ANALISTA DE ZENDESK","ANALISTA ESPECIALISTA VET","ANALISTA FINANCEIRO JR","ANALISTA FINANCEIRO PL","ANALISTA FINANCEIRO SR","ANALISTA GEST CATEGORIA PL","ANALISTA JR","ANALISTA KEY ACCOUNT SR","ANALISTA PRODUCT DESIGNER JR","ANALISTA PRODUCT DESIGNER PL","ANALISTA PRODUCT DESIGNER SR","ANALISTA REVENUE MGMT JR","ANALISTA REVENUE MGMT PL","ANALISTA TECNICO AUDITORIA JR","ANALISTA TECNICO AUDITORIA PL","ANALISTA VET JR","ANALISTA VET PL","ANALISTA VET SR","APOIADOR","APRENDIZ","APRENDIZ ADMINISTRATIVO","ARQUITETO DE SOLUCOES","ARQUITETO SOFTWARE","ASSISTENTE  CONSULTOR DE RELACIONAMENTO","ASSISTENTE ADMINISTRATIVO","ASSISTENTE COMERCIAL","ASSISTENTE DE CLINICA VETERINARIA","ASSISTENTE DE CONVENIOS","ASSISTENTE DE DEPARTAMENTO PESSOAL PLENO","ASSISTENTE DE ENGENHARIA LOGISTICA","ASSISTENTE DE FACILITIES","ASSISTENTE DE LABORATORIO","ASSISTENTE DE LABORATÓRIO","ASSISTENTE DE LOGISTICA","ASSISTENTE DE MANUTENCAO","ASSISTENTE DE OPERAÇÔES","ASSISTENTE DE RH","ASSISTENTE DE SDR","ASSISTENTE DE TRANSPORTES","ASSISTENTE QUALIDADE","ASSISTENTE SUPPLY CHAIN","ATENDENTE","ATENDENTE DE FARMACIA","AUDITOR (A) DE ATENDIMENTOS B2B","AUTONOMO","AUXILIAR ADMINISTRATIVO","AUXILIAR CLINICA VETERINARIA","AUXILIAR DE ALMOXARIFADO","AUXILIAR DE ALMOXARIFADO I","AUXILIAR DE ALMOXARIFADO II","AUXILIAR DE ALMOXARIFADO III","AUXILIAR DE ALMOXARIFADO IV","AUXILIAR DE ATENDIMENTO","AUXILIAR DE CLINICA VETERINARIA","AUXILIAR DE CLINICA VETERINÁRIA","AUXILIAR DE CONSULTOR DE RELACIONAMENTO","AUXILIAR DE DEPARTAMENTO PESSOAL","AUXILIAR DE EXPEDICAO","AUXILIAR DE LABORATÓRIO","AUXILIAR DE LIMPEZA","AUXILIAR DE LOGISTICA","AUXILIAR DE MANUTENCAO","AUXILIAR DE MARKETING","AUXILIAR DE QUALIDADE","AUXILIAR DE SUPERVISAO","AUXILIAR DE TRANSPORTE","AUXILIAR DE TRIAGEM LABORATORIAL","AUXILIAR LOGISTICA","AUXILIAR LOGISTICO I","AUXILIAR LOGISTICO II","AUXILIAR LOGISTICO III","AUXILIAR LOGISTICO IV","AUXILIAR OPERACIONAL","AUXILIAR VETERINARIO","BANHISTA","BANHISTA E TOSADOR","BIOMEDICO(A)","BOMBEIRO CIVIL","CFO","CHIEF OF STAFF","CONSULTOR DE CONVENIOS SR","CONSULTOR DE RELACIONAMENTO PL","CONSULTOR DE RELACIONAMENTO PROVET","CONSULTOR ORIENTACAO VET JR","CONSULTOR ORIENTACAO VET PL","CONSULTOR TECNICO ORIENTACAO VETERI","COORDENADOR (A) COMERCIAL","COORDENADOR (A) DE CONVENIOS","COORDENADOR (A) DE LABORATORIO","COORDENADOR AREAS MEDICAS","COORDENADOR COMERCIAL","COORDENADOR DE CADASTRO","COORDENADOR DE COMPRAS","COORDENADOR DE CUSTOMER EXPERIENCE","COORDENADOR DE DADOS","COORDENADOR DE E-COMMERCE","COORDENADOR DE FACILITIES","COORDENADOR DE INOVACAO","COORDENADOR DE LOGISTICA","COORDENADOR DE MARKETING","COORDENADOR DE NOVOS NEGOCIOS","COORDENADOR DE OPERACOES","COORDENADOR DE PERFORMANCE","COORDENADOR DE PLANEJAMENTO","COORDENADOR DE PRICING","COORDENADOR DE PROCESSOS","COORDENADOR DE PRODUTO","COORDENADOR DE PROJETOS","COORDENADOR DE QUALIDADE","COORDENADOR DE RELAC E EXPANSAO","COORDENADOR DE SUPORTE","COORDENADOR DE SUPPLY CHAIN","COORDENADOR DE TI","COORDENADOR DE TRANSPORTES","COORDENADOR FINANCEIRO","COORDENADOR JUNIOR","COORDENADOR MEDICO VETERINARIO","COORDENADOR ZENDESK","COORDENADOR(A) CONTABIL","COORDENADOR(A) DE ATENDIMENTO","COORDENADOR(A) DE ATENDIMENTO AO CLIENTE","COORDENADOR(A) DE CATEGORIA","COORDENADOR(A) DE ESG","COORDENADOR(A) DE LABORATÓRIO","COORDENADOR(A) DE MARKETING","COORDENADOR(A) DE UNIDADE","COORDENADOR(A) FINANCEIRO","COORDENADOR(A) RH","Cargo Mensalista","DESENVOLVEDOR JR","DESENVOLVEDOR PL","DESENVOLVEDOR SR","DIRETOR","DIRETOR COMERCIAL","DIRETOR COMERCIAL B2B","DIRETOR DE DATA","DIRETOR DE FP&A","DIRETOR DE MARCAS EXCLUSIVAS","DIRETOR DE MARKETING","DIRETOR DE NOVOS NEGOCIOS","DIRETOR DE OPERACOES","DIRETOR DE PESSOAS","DIRETOR DE PESSOAS E SUPPLY","DIRETOR DE RH","DIRETOR DE TECNOLOGIA","DIRETOR OMNICHANNEL","DIRETOR PRESIDENTE","DIRETOR(A) ADMINISTRATIVO","DIRETOR(A) FINTECH","DIRETOR(A) JURIDICO","EDITOR DE VIDEO","ENCARREGADO DE LOGISTICA","ENGENHEIRO DE DADOS JR","ENGENHEIRO DE DADOS PL","ENGENHEIRO DE DADOS SR","ENGENHEIRO DE SOFTWARE PL","ENGENHEIRO DE SOFTWARE SR","ESPECIALISTA COMERCIAL","ESPECIALISTA COMPRAS","ESPECIALISTA DE CX","ESPECIALISTA DE DADOS","ESPECIALISTA DE EXC OPE","ESPECIALISTA DE EXPANSAO","ESPECIALISTA DE FINANCAS","ESPECIALISTA DE MARKETING","ESPECIALISTA DE NEGÓCIOS","ESPECIALISTA DE OPERAÇÕES","ESPECIALISTA DE PLANEJAMENTO","ESPECIALISTA DE PROJETOS","ESPECIALISTA DE RH","ESPECIALISTA DE TI","ESPECIALISTA DE TRANSPORTES","ESPECIALISTA DE WMS","ESPECIALISTA EM AUDITORIA","ESPECIALISTA ENG DADOS","ESPECIALISTA JURIDICO","ESPECIALISTA P&D","ESPECIALISTA QUIMICO","ESPECIALISTA SRE","ESPECIALISTA ZENDESK","ESTAGIARIO(A)","ESTOQUISTA","FARMACEUTICO RESP TECNICO","GERENTE","GERENTE AREAS MEDICAS","GERENTE ATENDIMENTO DOMICILIAR","GERENTE B2C","GERENTE COMERCIAL","GERENTE DE ATENDIMENTO","GERENTE DE CAMPANHAS","GERENTE DE CATEGORIA","GERENTE DE CONTABILIDADE","GERENTE DE CUSTOMER SERVICE","GERENTE DE DADOS","GERENTE DE EXPANSAO","GERENTE DE FP&A","GERENTE DE IMAGEM","GERENTE DE LABORATORIO","GERENTE DE LOGISTICA","GERENTE DE LOJA","GERENTE DE LOSS PREVENTION","GERENTE DE MARKETING","GERENTE DE NEGOCIOS","GERENTE DE NOVOS NEGOCIOS","GERENTE DE OPERACOES","GERENTE DE OPERAÇÕES DE LOJA","GERENTE DE PLANEJAMENTO","GERENTE DE PRODUTO","GERENTE DE PROJETOS","GERENTE DE QUALIDADE","GERENTE DE RH","GERENTE DE SUPPLY CHAIN","GERENTE DE T.I","GERENTE DE TI","GERENTE DE TRANSPORTE","GERENTE EXC OPERACIONAL","GERENTE FINANCEIRO","GERENTE JURIDICO","GERENTE OPE DE FRANQUIAS","GERENTE OPE. DE LABORATORIO","GESTOR ATEND AO CLIENTE","HEAD COMERCIAL","HEAD CONTABIL","HEAD CX","HEAD DE ATENDIMENTO","HEAD DE COMPRAS","HEAD DE DADOS","HEAD DE DESENVOLVIMENTO","HEAD DE FRANQUIAS","HEAD DE INVENTORY MANAGEMENT","HEAD DE MARKETING E VENDAS","HEAD DE OPERACOES","HEAD DE PERFORMANCE","HEAD DE PRODUTO","HEAD DE PRODUTO E INOVACAO","HEAD DE RH","HEAD DE SI","HEAD DE TESOURARIA","HEAD DE TRANSPORTE","HEAD ESG","HEAD M&A","HEAD OF DATA SCIENCE","HEAD OF UX","HEAD TRIBUTÁRIO","JOVEM APRENDIZ","LIDER DE ATENDIMENTO","LIDER DE BACKOFFICE","LIDER DE LABORATORIO","LIDER DE LOGISTICA","LIDER DE MANUTENCAO","LIDER DE MANUTENCAO AUTOMACAO","LIDER DE OPERACOES","LIDER DE QUALIDADE","LIDER DE TI","LIDER DE TRANSPORTE","LIDER FISCAL","LIDER II","LIDER III","LIDER PAF","LÍDER DE BANHO E TOSA","LÍDER DE CONTROLE E ESTOQUE","MEDICO (A) VETERINÁRIO","MEDICO(A) VETERINARIO(A)","OFICIAL DE MANUTENCAO PREDIAL","OPERADOR (A) DE ATENDIMENTO","OPERADOR DE ATENDIMENTO","OPERADOR DE EMPILHADEIRA","OPERADOR(A) DE LOJA","PRODUCT MANAGER JR","PRODUCT MANAGER PL","PRODUCT MANAGER SR","PRODUTOR","PRODUTOR(A) DE AUDIOVISUAL","PROMOTOR DE MARCAS EXCLUSIVAS","RECEPCIONISTA","SECRETARIA EXECUTIVA","SOCIO","SUPERVISOR (A) DE ATENDIMENTO","SUPERVISOR (A) DE AUDITORIA","SUPERVISOR (A) DE LOGISTICA","SUPERVISOR (A) DE RELACIONAMENTO AO CLIENTE","SUPERVISOR (A) IS","SUPERVISOR (A) TECNICO - AUX, CLINICA E IMAGEM","SUPERVISOR (A) TECNICO DE LABORATORIO","SUPERVISOR ADMINISTRATIVO","SUPERVISOR COMERCIAL","SUPERVISOR DE ATENDIMENTO","SUPERVISOR DE AUDIOVISUAL","SUPERVISOR DE BANHO E TOSA","SUPERVISOR DE CADASTRO","SUPERVISOR DE CATEGORIA","SUPERVISOR DE CX","SUPERVISOR DE DESIGN","SUPERVISOR DE IMPLANTACAO","SUPERVISOR DE LOGISTICA","SUPERVISOR DE LOJA","SUPERVISOR DE MANUTENÇÃO","SUPERVISOR DE MARKETING","SUPERVISOR DE MARKETPLACE","SUPERVISOR DE OPERACOES","SUPERVISOR DE PERFORMANCE","SUPERVISOR DE PROJETOS","SUPERVISOR DE QUALIDADE","SUPERVISOR DE RELACIONAMENTO","SUPERVISOR DE RETENCAO","SUPERVISOR DE SAC","SUPERVISOR DE SUPPLY CHAIN","SUPERVISOR DE TRANSPORTE","SUPERVISOR DE WFM","SUPERVISOR JUNIOR","SUPERVISOR PLENO","SUPERVISOR SÊNIOR","SUPERVISOR TECNICO","SUPERVISOR VETERINARIO","SUPERVISOR(A) CONTAS MEDICAS","SUPERVISOR(A) DE ATENDIMENTO","SUPERVISOR(A) DE LABORATORIO","SUPERVISOR(A) DE PLANEJAMENTO","SUPERVISOR(A) DE SDR","SUPERVISOR(A) DE T.I.","SUPERVISOR(A) DE TREINAMENTO","SUPERVISOR(A) FINANCEIRO","SUPERVISOR(A) RH","SÓCIO","TECNICO DE AUTOMACAO JR","TECNICO DE LABORATORIO II","TECNICO DE RADIOLOGIA","TECNICO EM ELETROMECANICA","TECNICO EM SUPORTE PL","TECNICO SEGURANCA DO TRABALHO","TECNICO SEGURANCA DO TRABALHO SR","TRAINEE","TRAINEE I","TRAINEE II","TÉCNICO DE RADIOLOGIA","VENDEDOR(A) I","VENDEDOR(A) II"],
+  centro_de_custo: ["-","1 - ADMINSTRATIVO / FINANCEIRO","10 - LABORATORIAL","1000000 - ATENDIMENTO AO CLIENTE","10000000 - ADMINISTRATIVO","1000100101 - OP - PLANEJ","1000100102 - OP - CD","1000100103 - OP - FACILITIES","1000100106 - OP - TRANSP","1000100107 - OP - PAF","1000100201 - PX - GERAL","1000100202 - PX - APOIO","1000100206 - PX - B2B, Compartilhado","1000100207 - PX - Ecossistema, Alocado","1000100208 - PX - Ecossistema, Compartilhado","1000100209 - PX - B2C, Alocado","1000100210 - PX - B2B, Sistemas","1000100211 - PX - B2B, LOJAS","1000100301 - FIN - GERAL","1000100302 - FIN - FISCAL","1000100303 - FIN - TESOURARIA","1000100304 - FIN - FP&A","1000100305 - FIN - CONTÁBIL","1000100306 - FIN - JURÍDICO","1000100307 - FIN - COMPRAS","1000100401 - RH -  GERAL","1000100402 - RH - TOTAL REWARDS","1000100403 - RH - AQUIS TALENTOS","1000100404 - RH - CULTURA","1000100405 - RH - ESG","1000100406 - RH - GESTAO","1000100407 - APRENDIZ","1000100408 - ESTAGIARIO","1000100501 - COM - GERAL","1000100502 - COM - PRICING","1000100503 - COM - GESTAO CATEG","1000100504 - COM - INVENTORY MANAGEMENT","1000100505 - COM - STRATEGIC REV","1000100507 - COM - ALIMENTOS","1000100508 - COM - INSIDE SALES","1000100509 - COM - TRADE/MERCHAND","1000100510 - COM - MARKETPLACE","1000100601 - ME - GERAL","1000100602 - ME - INOVAÇÃO","1000100603 - ME - MARKETING & SALES","1000100604 - ME - MARKETING & VENDAS","1000100701 - MKT - GERAL","1000100702 - MKT - PERFORMANCE","1000100703 - MKT - BRANDING & PR","1000100706 - MKT - CRM","1000100707 - MKT - CREATIVE","1000100801 - DIG - GERAL","1000100802 - DIG - TECH","1000100803 - DIG - DADOS","1000100804 - DIG - PRODUTO","1000100805 - DIG - DESIGN","1000100901 - PRE - GERAL","1000101001 - SUP - GERAL","1000101002 - SUP - FACILITIES","1000101003 - SUP - TRANSPORTES","1000101004 - SUP - PLANEJAMENTO","1000101005 - SUP - CADASTROS","1000101101 - B2B - PARCERIAS","1000101202 - LJA - GESTAO","1000101203 - LJA - G & P","1000101204 - LJA - OPERAÇÃO","1000101401 - OMINI - GERAL","1000101402 - OMINI - LOJAS","1000101502 - PI - CUIDADOS MÉDICOS, REDE CREDENC","1000101503 - PI - CUIDADOS MÉDICOS, ÁREA MÉDICA","1000101504 - PI - OPERAÇÕES","1000101506 - PI - GERAL","1000101601 - B2B - VETUS","1000101604 - B2B - INSIDE SALES","1000102201 - LB","1000102501 - FINT - ADM","1000102602 - FARMACIA","1000102604 - EXPEDICAO","1000102605 - ADM","1000102607 - SUPPLY","10003 - DOGHERO","1000300101 - OP - PLANEJ","1000300102 - OP - CD","1000300103 - OP - FACILITIES","1000300104 - OP - PETLOG","1000300105 - OP - RH","1000300106 - OP - TRANSPORTES","1000300107 - OP - PAF","1000300108 - OP - TRANSFERÊNCIA","10004 - PORTO PET","1000500102 - OP - CD","1000500103 - OP - FACILITIES","1000500104 - OP - PETLOG","1000800105 - OP - PETLOVE JÁ","1001000105 - OP - PETLOVE JÁ","1001001 - GERAL","100100498 - APRENDIZ","100100499 - ESTAGIARIO","1001101204 - LJA - OPERAÇÃO","1001101405 - LJA - CLÍNICAS Portugal","1001201204 - LJA - OPERAÇÃO","1001201405 - LJA - CLÍNICAS Cidade Jardim","1001300104 - OP - PETLOG","1001300105 - OP - PETLOVE JÁ","1001400104 - OP - PETLOG","10015213 - GER PRODUTOS","1001701204 - LJA - OPERAÇÃO","1001701402 - OMINI - LOJAS","1001900102 - OP - CD","10019612 - GER PORTO.PET","10019613 - COMERCIAL SP","10019614 - COMERCIAL REGIOES","10019615 - PRODUTOS","10019616 - ATENDIMENTO","10019617 - SISTEMAS","10019618 - REDE DE PRESTADORES","10019619 - GESTAO MEDICA VETERINARIA","10019620 - TI","10019621 - BI","10019700 - COMERCIAL REGIOES","1002000104 - OP - PETLOG","1002000105 - OP - PETLOVE JÁ","1002101201 - LJA - GERAL","1002101204 - LJA - OPERAÇÃO","1002101402 - OMINI - LOJAS","1002201204 - LJA - OPERAÇÃO","1002301402 - OMINI - LOJAS","1002401204 - LJA - OPERAÇÃO","1002401402 - OMINI - LOJAS","1002501204 - LJA - OPERAÇÃO","1002601204 - LJA - OPERAÇÃO","1002601405 - LJA - CLÍNICAS Tutóia","1002701204 - LJA - OPERAÇÃO","1002801204 - LJA - OPERAÇÃO","1002801405 - LJA - CLÍNICAS Santos","1002901201 - LJA - GERAL","1002901204 - LJA - OPERAÇÃO","1003001204 - LJA - OPERAÇÃO","1003300209 - PX - B2C, Alocado","1003301502 - PI - CUIDADOS MÉDICOS, REDE CREDENC","1003301503 - PI - CUIDADOS MÉDICOS, ÁREA MÉDICA","1003301504 - PI - INSIDE SALES","1006 - DIGITAL","11 - IMPLANTACAO","11 - LOGISTICA","11000000 - OPERACAO","12000000 - DELIVERY","14 - APOIO LABORATORIAL","14000000 - SUPPLY","15 - AUDITORIA FATURAMENTO","15000000 - PROJETOS","16 - CADASTRO","16000000 - PRODUTO","17 - CAT","17000000 - BI","18000000 - NOVOS NEGOCIOS","19001001 - CONTEUDO","2 - ATENDIMENTO","2000000 - COMERCIAL","20001001 - PLANNING E REVENUE","2000100305 - FIN - CONTÁBIL","2000100802 - DIG - TECH","2000100803 - DIG - DADOS","2000100805 - DIG - DESIGN","2000101602 - B2B - VETSMART","2001000 - COMERCIAL - PAF","21000000 - OMNICHANNEL","22000000 - JURIDICO","23000000 - MARCAS EXCLUSIVAS","24000000 - UX DESIGN","25000000 - PLANEJAMENTO DE OPERACOES","27000000 - ESG","3 - COMERCIAL","3000000 - CONTROLADORIA E FINANCAS","3000100210 - PX - B2B, SISTEMAS","3000100408 - RH - ESTAGIARIO","3000100509 - COM - TRADE/CAMPANHAS","3000100802 - DIG - TECH","3000100804 - DIG - PRODUTO","3000100805 - DIG - DESIGN","3000101601 - B2B - VETUS","4 - CONTENÇÃO","4000000 - RECURSOS HUMANOS","4000100202 - PX - APOIO","4000100209 - PX - B2C, ALOCADO","4000100504 - COM - GESTÃO INVENT","4000100509 - COM - TRADE/CAMPANHAS","4000100703 - MKT - BRANDING","4000100802 - DIG - TECH","4000100803 - DIG - DADOS","4000100804 - DIG - PRODUTO","4000100805 - DIG - DESIGN","4000101701 - SER - OPERAÇÕES","4000101702 - SER - ESTRATÉGIA","48 - HEALTH FOR PET","5000000 - LOGISTICA","5000100202 - PX - B2C, Alocado","5000100207 - PX - Ecossistema, Alocado","5000100209 - PX - B2C, ALOCADO","5000100301 - FIN - GERAL","5000100302 - FIN - FISCAL","5000100303 - FIN - TESOURARIA","5000100304 - FIN - FP&A","5000100305 - FIN - CONTÁBIL","5000100401 - RH -  GERAL","5000100701 - MKT - GERAL","5000100702 - MKT - PERFORMANCE","5000100706 - MKT - CRM","5000100707 - MKT - CREATIVE","5000100802 - DIG - TECH","5000100803 - DIG - DADOS","5000100804 - DIG - PRODUTO","5000100805 - DIG - DESIGN","5000101501 - PI - DATA, PORTFOLIO & INSIGHT","5000101502 - PI - CUIDADOS MÉDICOS, REDE CREDENCIADA","5000101503 - PI - CUIDADOS MÉDICOS, ÁREA MÉDICA","5000101504 - PI - OPERAÇÕES","5000101506 - PI - GERAL","5000101603 - B2B - PARCERIAS","5000101604 - B2B - INSIDE SALES","5001000 - LOGISTICA - AUXILIARES","50019619 - GESTAO MEDICA VETERINARIA","5002000 - LOGISTICA - LIDERES","5003000 - LOGISTICA - SUPORTE","5004000 - LOGISTICA - CADASTRO","5005000 - LOGISTICA - FACILITIES","6 - IMAGEM","6000000 - MARKETING","7 - LABORATORIAL","8 - RECEPÇÃO","8000000 - TI","9 - T.I.","999 - GERAL"]
+};
+
+const USERS = {
+  'bruna.passarelli@petlove.com.br': {name:'Bruna Passarelli',  email:'bruna.passarelli@petlove.com.br',  role:'bp'},
+  'fernanda.molina@petlove.com.br':  {name:'Fernanda Molina',   email:'fernanda.molina@petlove.com.br',   role:'bp'},
+  'julia.alves@petlove.com.br':      {name:'Júlia Alves',       email:'julia.alves@petlove.com.br',       role:'bp'},
+  'luiza.pesinato@petlove.com.br':   {name:'Luiza Pesinato',    email:'luiza.pesinato@petlove.com.br',    role:'bp'},
+  'paula.zanella@petlove.com.br':    {name:'Paula Zanella',     email:'paula.zanella@petlove.com.br',     role:'bp'},
+  'taynara.orlandini@petlove.com.br':{name:'Taynara Orlandini', email:'taynara.orlandini@petlove.com.br', role:'bp'},
+  'thais.satiro@petlove.com.br':     {name:'Thais Satiro',      email:'thais.satiro@petlove.com.br',      role:'bp'},
+  'taiana.takigami@petlove.com.br':  {name:'Yukiko Takigami',   email:'taiana.takigami@petlove.com.br',   role:'bp'},
+  'peoplecost':                      {name:'People Cost',       email:'peoplecost@petlove.com.br',        role:'admin'}
+};
+const PASS = 'petlove@bp';
+let CU = null;
+
+function doLogin(){
+  const uid  = document.getElementById('login-user').value;
+  const pass = document.getElementById('login-pass').value;
+  const err  = document.getElementById('login-error');
+  if(!uid){ err.textContent='Selecione seu perfil.'; return; }
+  if(pass !== PASS){ err.textContent='Senha incorreta.'; return; }
+  err.textContent='';
+  completeLogin(uid);
+}
+
+function completeLogin(uid){
+  CU = USERS[uid];
+  document.getElementById('login-overlay').classList.add('hidden');
+  document.body.classList.remove('login-mode');
+  const ini = CU.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('user-chip-area').innerHTML =
+    `<div class="user-chip"><div class="user-avatar">${ini}</div><span>${CU.name}</span>${CU.role==='admin'?'<span class="admin-badge">ADMIN</span>':''}</div>`;
+  if(CU.role==='admin'){
+    document.getElementById('admin-tabs').style.display='flex';
+  }
+  loadMyEntries();
+  showToast('Bem-vinda, '+CU.name.split(' ')[0]+'! 🐾');
+}
+
+function logout(){
+  CU=null; pendingUID=null;
+  document.getElementById('login-user').value='';
+  document.getElementById('login-pass').value='';
+  document.getElementById('login-error').textContent='';
+  document.getElementById('login-overlay').classList.remove('hidden');
+  document.body.classList.add('login-mode');
+  document.getElementById('user-chip-area').innerHTML='';
+  document.getElementById('admin-tabs').style.display='none';
+  switchTab('tab-form',document.querySelector('.tab'));
+}
+
+function switchTab(id,el){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+  if(id==='tab-admin'){ updateAdminStats(); renderAdminTable(); }
+}
+
+// ── FORM ────────────────────────────────────────────────────────────────
+let entries=[], deleteIdx=null, sgaValue=null;
+const HV={uo:'',cargo:'',cc:''};
+
+window.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('f-data-solic').value=new Date().toISOString().split('T')[0];
+  popSel('f-empresa', DATA.empresa);
+  popSel('f-estabelecimento', DATA.estabelecimento);
+  setupSS('f-uo','dd-uo',DATA.unidade_organizacional,'uo');
+  setupSS('f-cargo','dd-cargo',DATA.cargo,'cargo');
+  setupSS('f-cc','dd-cc',DATA.centro_de_custo,'cc');
+  document.querySelectorAll('input,select,textarea').forEach(el=>{el.addEventListener('input',upProg);el.addEventListener('change',upProg);});
+  upProg();
+  document.body.classList.add('login-mode');
+});
+
+function popSel(id,items){
+  const s=document.getElementById(id);
+  items.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});
+}
+
+function setupSS(inputId,ddId,data,key){
+  const inp=document.getElementById(inputId), dd=document.getElementById(ddId);
+  inp.addEventListener('focus',()=>{posDD(inp,dd);showDD(inp,dd,data,key);});
+  inp.addEventListener('input',()=>{HV[key]='';posDD(inp,dd);filtDD(inp,dd,data,key);});
+  document.addEventListener('click',e=>{if(!inp.contains(e.target)&&!dd.contains(e.target))dd.classList.remove('open');});
+  window.addEventListener('scroll',()=>{if(dd.classList.contains('open'))posDD(inp,dd);},true);
+  window.addEventListener('resize',()=>{if(dd.classList.contains('open'))posDD(inp,dd);});
+}
+
+function posDD(inp,dd){
+  const r=inp.getBoundingClientRect();
+  dd.style.width=r.width+'px'; dd.style.left=r.left+'px';
+  window.innerHeight-r.bottom>=220?( dd.style.top=(r.bottom+4)+'px', dd.style.bottom='auto' ):(dd.style.bottom=(window.innerHeight-r.top+4)+'px', dd.style.top='auto');
+}
+
+function showDD(inp,dd,data,key){renderDD(dd,data,inp.value.toLowerCase(),key);dd.classList.add('open');}
+function filtDD(inp,dd,data,key){renderDD(dd,data,inp.value.toLowerCase(),key);dd.classList.add('open');}
+
+function renderDD(dd,data,q,key){
+  const f=q?data.filter(v=>v.toLowerCase().includes(q)):data;
+  dd.innerHTML='';
+  if(!f.length){dd.innerHTML='<div class="ss-no-results">Nenhum resultado</div>';return;}
+  f.slice(0,60).forEach(v=>{
+    const d=document.createElement('div');d.className='ss-option';
+    if(q){const i=v.toLowerCase().indexOf(q);d.innerHTML=v.slice(0,i)+'<span class="ss-highlight">'+v.slice(i,i+q.length)+'</span>'+v.slice(i+q.length);}
+    else d.textContent=v;
+    d.addEventListener('mousedown',e=>{e.preventDefault();selOpt(key,v);dd.classList.remove('open');});
+    dd.appendChild(d);
+  });
+  if(f.length>60){const m=document.createElement('div');m.className='ss-no-results';m.textContent=`+ ${f.length-60} resultados`;dd.appendChild(m);}
+}
+
+function selOpt(key,val){
+  const m={uo:'f-uo',cargo:'f-cargo',cc:'f-cc'};
+  document.getElementById(m[key]).value=val;HV[key]=val;upProg();
+}
+
+function setToggle(v){
+  sgaValue=v;
+  document.getElementById('sgaYes').classList.toggle('selected',v==='yes');
+  document.getElementById('sgaNo').classList.toggle('selected',v==='no');
+}
+
+function upProg(){
+  const f=[document.getElementById('f-data-solic').value,document.getElementById('f-empresa').value,document.getElementById('f-estabelecimento').value,HV.uo,HV.cargo,HV.cc];
+  const p=Math.round(f.filter(Boolean).length/f.length*100);
+  document.getElementById('prog-fill').style.width=p+'%';
+  document.getElementById('prog-pct').textContent=p+'%';
+  const s=[document.getElementById('f-data-solic').value,document.getElementById('f-empresa').value&&HV.uo&&HV.cargo,HV.cc];
+  s.forEach((done,i)=>{
+    const el=document.getElementById('sn'+(i+1));
+    if(done){el.className='step-num done';el.textContent='✓';}
+    else if(i===0||s.slice(0,i).every(Boolean)){el.className='step-num active';el.textContent=i+1;}
+    else{el.className='step-num inactive';el.textContent=i+1;}
+  });
+  const s4=document.getElementById('sn4');
+  if(entries.length>0){s4.className='step-num done';s4.textContent='✓';}else{s4.className='step-num inactive';s4.textContent='4';}
+}
+
+function valForm(){
+  let ok=true;
+  [['f-empresa','err-empresa'],['f-estabelecimento','err-estab']].forEach(([id,e])=>{
+    const el=document.getElementById(id);
+    if(!el.value){el.classList.add('invalid');document.getElementById(e).classList.add('show');ok=false;}
+    else{el.classList.remove('invalid');document.getElementById(e).classList.remove('show');}
+  });
+  [['f-uo','uo','err-uo'],['f-cargo','cargo','err-cargo'],['f-cc','cc','err-cc']].forEach(([id,k,e])=>{
+    const el=document.getElementById(id);
+    if(!HV[k]){el.classList.add('invalid');document.getElementById(e).classList.add('show');ok=false;}
+    else{el.classList.remove('invalid');document.getElementById(e).classList.remove('show');}
+  });
+  return ok;
+}
+
+function onAcaoChange(){
+  const acao = document.querySelector('input[name="acao"]:checked')?.value;
+  const isAtualizar = acao === 'Atualizar';
+  document.getElementById('wrap-atualizar').style.display = isAtualizar ? 'block' : 'none';
+  // Esconde campos de tipo de solicitação no modo atualizar (não obrigatório)
+  document.getElementById('wrap-tipo-solicitacao').style.opacity = isAtualizar ? '0.5' : '1';
+}
+
+function addEntry(){
+  if(!valForm()){showToast('Preencha os campos obrigatórios.','error');return;}
+  const tp=document.querySelector('input[name="tipo-posicao"]:checked')?.value||'Margem';
+  const acao = document.querySelector('input[name="acao"]:checked')?.value || 'Criar';
+  // Validação extra para Atualizar
+  if(acao === 'Atualizar'){
+    const idAtualizar = document.getElementById('f-id-atualizar').value.trim();
+    if(!idAtualizar){
+      document.getElementById('f-id-atualizar').classList.add('invalid');
+      document.getElementById('err-id-atualizar').classList.add('show');
+      showToast('Informe o ID da posição a atualizar.','error'); return;
+    }
+    document.getElementById('f-id-atualizar').classList.remove('invalid');
+    document.getElementById('err-id-atualizar').classList.remove('show');
+  }
+  entries.push({
+    id:Date.now(),
+    acao,
+    idAtualizar: acao==='Atualizar'?(document.getElementById('f-id-atualizar').value.trim()||'—'):'—',
+    motivoAtualizar: acao==='Atualizar'?(document.getElementById('f-motivo-atualizar').value||'—'):'—',
+    solicPor:CU?CU.email:'—',
+    dataSolic:document.getElementById('f-data-solic').value,
+    idEspelho:document.getElementById('f-id-espelho').value||'—',
+    tipo:document.querySelector('input[name="tipo"]:checked')?.value||'Nova',
+    empresa:document.getElementById('f-empresa').value,
+    estabelecimento:document.getElementById('f-estabelecimento').value,
+    uo:HV.uo, gestor:document.getElementById('f-gestor').value||'—',
+    cargo:HV.cargo, cc:HV.cc, tipoPosicao:tp,
+    sga:tp==='SG&A'?(sgaValue==='yes'?'Sim':sgaValue==='no'?'Não':'—'):'—',
+    status:'Solicitado',
+    obs:document.getElementById('f-obs').value||'—',
+    obsBps:document.getElementById('f-obs-bps').value||'—',
+  });
+  saveEntries();renderTable();showToast('✓ Posição adicionada!');upProg();
+}
+
+function saveEntries(){
+  const all=loadAll();if(CU)all[CU.email]=entries;
+  localStorage.setItem('pl_entries',JSON.stringify(all));
+}
+function loadAll(){try{return JSON.parse(localStorage.getItem('pl_entries')||'{}');}catch(e){return {};}}
+function loadMyEntries(){if(!CU)return;entries=loadAll()[CU.email]||[];renderTable();upProg();}
+
+function statusClass(s){return s==='Criado'?'cri':s==='Aguardando'?'agu':s==='Em análise'?'ana':'sol';}
+
+function renderTable(){
+  // Always read fresh from storage so edits from admin are reflected immediately
+  if(CU){ const fresh=loadAll()[CU.email]; if(fresh) entries=fresh; }
+  const tb=document.getElementById('entries-body');
+  document.getElementById('empty-state').style.display=entries.length?'none':'block';
+  document.getElementById('table-wrap').style.display=entries.length?'block':'none';
+  document.getElementById('entry-count').textContent=entries.length;
+  tb.innerHTML='';
+  entries.forEach((e,i)=>{
+    const tr=document.createElement('tr');
+    const sn=n=>n&&n.length>18?n.slice(0,18)+'…':n||'—';
+    const idChip=e.idPosicao?`<span class="id-chip">🆔 ${e.idPosicao}</span>`:`<span class="id-chip empty">—</span>`;
+    const acaoChip = e.acao==='Atualizar'
+      ? `<span class="td-s p" title="ID: ${e.idAtualizar}">✏️ Atualizar</span>`
+      : `<span class="td-s cri">＋ Criar</span>`;
+    tr.innerHTML=`<td style="color:var(--text-light);font-weight:700">${i+1}</td>
+      <td>${e.dataSolic}</td>
+      <td>${acaoChip}</td>
+      <td><span class="td-s ${e.tipo!=='Nova'?'p':''}">${e.tipo}</span></td>
+      <td title="${e.empresa}">${sn(e.empresa)}</td>
+      <td title="${e.uo}">${sn(e.uo)}</td>
+      <td title="${e.cargo}">${sn(e.cargo)}</td>
+      <td title="${e.cc}">${sn(e.cc)}</td>
+      <td><span class="td-s ${e.tipoPosicao==='SG&A'?'p':''}">${e.tipoPosicao}</span></td>
+      <td>${e.sga}</td>
+      <td><span class="td-s ${statusClass(e.status)}">${e.status}</span></td>
+      <td>${idChip}</td>
+      <td><button class="btn-del" onclick="askDel(${i})">🗑</button></td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function updateAdminStats(){
+  const all=loadAll();const flat=Object.values(all).flat();
+  document.getElementById('st-total').textContent=flat.length;
+  document.getElementById('st-nova').textContent=flat.filter(e=>e.tipo==='Nova').length;
+  document.getElementById('st-sga').textContent=flat.filter(e=>e.tipoPosicao==='SG&A').length;
+  document.getElementById('st-bps').textContent=Object.keys(all).filter(k=>all[k].length>0).length;
+}
+
+function persistEdit(bp, id, field, value){
+  const all=loadAll();
+  const arr=all[bp]||[];
+  const idx=arr.findIndex(e=>e.id===id);
+  if(idx===-1)return;
+  arr[idx][field]=value;
+  all[bp]=arr;
+  localStorage.setItem('pl_entries',JSON.stringify(all));
+  // Always sync in-memory entries from storage so BP view stays current
+  if(CU) { entries = loadAll()[CU.email] || []; renderTable(); }
+  updateAdminStats();
+}
+
+function makeEditableId(bp, id, currentVal){
+  const wrap=document.createElement('div');
+  wrap.style.minWidth='80px';
+  const chip=document.createElement('span');
+  chip.className='editable-cell';
+  chip.innerHTML=currentVal?`<span class="id-chip">🆔 ${currentVal}</span>`:`<span class="id-chip empty">—</span>`;
+  chip.title='Clique para editar o ID';
+  chip.onclick=()=>{
+    const inp=document.createElement('input');
+    inp.type='text'; inp.className='inline-input';
+    inp.value=currentVal||''; inp.placeholder='ID...';
+    inp.style.width='90px';
+    wrap.replaceChild(inp,chip);
+    inp.focus(); inp.select();
+    const save=()=>{
+      const v=inp.value.trim();
+      persistEdit(bp,id,'idPosicao',v);
+      chip.innerHTML=v?`<span class="id-chip">🆔 ${v}</span>`:`<span class="id-chip empty">—</span>`;
+      wrap.replaceChild(chip,inp);
+      if(v) showToast('✓ ID salvo!');
+    };
+    inp.onblur=save;
+    inp.onkeydown=e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){inp.value=currentVal||'';inp.blur();}};
+  };
+  wrap.appendChild(chip);
+  return wrap;
+}
+
+function makeEditableStatus(bp, id, currentVal){
+  const wrap=document.createElement('div');
+  const statuses=['Solicitado','Em análise','Aguardando','Criado'];
+  const badge=document.createElement('span');
+  badge.className=`td-s ${statusClass(currentVal)} editable-cell`;
+  badge.textContent=currentVal;
+  badge.title='Clique para alterar status';
+  badge.onclick=()=>{
+    const sel=document.createElement('select');
+    sel.className='inline-select';
+    statuses.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(s===currentVal)o.selected=true;sel.appendChild(o);});
+    wrap.replaceChild(sel,badge);
+    sel.focus();
+    const save=()=>{
+      const v=sel.value;
+      persistEdit(bp,id,'status',v);
+      badge.className=`td-s ${statusClass(v)} editable-cell`;
+      badge.textContent=v;
+      wrap.replaceChild(badge,sel);
+      showToast('✓ Status atualizado!');
+    };
+    sel.onblur=save;
+    sel.onchange=save;
+  };
+  wrap.appendChild(badge);
+  return wrap;
+}
+
+function renderAdminTable(){
+  const all=loadAll();
+  const bpF=document.getElementById('filter-bp').value;
+  const stF=document.getElementById('filter-status').value;
+  const tpF=document.getElementById('filter-tipo').value;
+  let flat=[];
+  Object.entries(all).forEach(([bp,arr])=>{
+    if(bpF&&bp!==bpF)return;
+    arr.forEach(e=>flat.push({...e,_bp:bp}));
+  });
+  if(stF)flat=flat.filter(e=>e.status===stF);
+  if(tpF)flat=flat.filter(e=>e.tipoPosicao===tpF);
+  document.getElementById('admin-empty').style.display=flat.length?'none':'block';
+  document.getElementById('admin-wrap').style.display=flat.length?'block':'none';
+  const bpN=email=>{const u=Object.values(USERS).find(u=>u.email===email);return u?u.name.split(' ')[0]:email.split('@')[0];};
+  const sn=n=>n&&n.length>14?n.slice(0,14)+'…':n||'—';
+  const tb=document.getElementById('admin-body');tb.innerHTML='';
+  flat.forEach((e,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="color:var(--text-light);font-weight:700">${i+1}</td>
+      <td>${e.dataSolic}</td>
+      <td><span class="td-s i">${bpN(e._bp)}</span></td>
+      <td><span class="td-s ${e.tipo!=='Nova'?'p':''}">${e.tipo}</span></td>
+      <td title="${e.empresa}">${sn(e.empresa)}</td>
+      <td title="${e.uo}">${sn(e.uo)}</td>
+      <td title="${e.cargo}">${sn(e.cargo)}</td>
+      <td title="${e.cc}">${sn(e.cc)}</td>
+      <td><span class="td-s ${e.tipoPosicao==='SG&A'?'p':''}">${e.tipoPosicao}</span></td>
+      <td>${e.sga}</td>
+      <td class="status-cell-${e.id}"></td>
+      <td class="id-cell-${e.id}"></td>
+      <td title="${e.obs}">${sn(e.obs)}</td>
+      <td><button class="btn-del" onclick="adminDel('${e._bp}',${e.id})">🗑</button></td>`;
+    tb.appendChild(tr);
+    tr.querySelector('.status-cell-'+e.id).appendChild(makeEditableStatus(e._bp,e.id,e.status||'Solicitado'));
+    tr.querySelector('.id-cell-'+e.id).appendChild(makeEditableId(e._bp,e.id,e.idPosicao||''));
+  });
+}
+
+function adminDel(bp,id){
+  const all=loadAll();if(all[bp])all[bp]=all[bp].filter(e=>e.id!==id);
+  localStorage.setItem('pl_entries',JSON.stringify(all));
+  if(CU&&CU.email===bp){entries=all[bp]||[];renderTable();}
+  updateAdminStats();renderAdminTable();showToast('Posição removida.');
+}
+
+function clearAllEntries(){
+  if(!confirm('Remover TODAS as posições de todos os BPs?'))return;
+  localStorage.removeItem('pl_entries');entries=[];
+  renderTable();updateAdminStats();renderAdminTable();
+  showToast('Todas as posições foram removidas.','error');
+}
+
+function askDel(i){deleteIdx=i;openModal('modal-delete');}
+function confirmDelete(){
+  if(deleteIdx!==null){entries.splice(deleteIdx,1);saveEntries();renderTable();showToast('Posição removida.','error');upProg();}
+  closeModal('modal-delete');deleteIdx=null;
+}
+
+function clearForm(){
+  ['f-id-espelho','f-gestor','f-obs','f-obs-bps','f-id-atualizar','f-motivo-atualizar'].forEach(id=>document.getElementById(id).value='');
+  document.querySelector('input[name="acao"][value="Criar"]').checked=true;
+  document.getElementById('wrap-atualizar').style.display='none';
+  document.getElementById('wrap-tipo-solicitacao').style.opacity='1';
+  document.getElementById('f-data-solic').value=new Date().toISOString().split('T')[0];
+  ['f-empresa','f-estabelecimento'].forEach(id=>document.getElementById(id).value='');
+  ['f-uo','f-cargo','f-cc'].forEach(id=>document.getElementById(id).value='');
+  document.querySelector('input[name="tipo"][value="Nova"]').checked=true;
+  document.querySelector('input[name="tipo-posicao"][value="Margem"]').checked=true;
+  document.getElementById('f-status').value='Criado';
+  HV.uo=HV.cargo=HV.cc=''; sgaValue=null;
+  document.getElementById('sgaYes').classList.remove('selected');
+  document.getElementById('sgaNo').classList.remove('selected');
+  document.querySelectorAll('.invalid').forEach(e=>e.classList.remove('invalid'));
+  document.querySelectorAll('.field-error.show').forEach(e=>e.classList.remove('show'));
+  upProg();showToast('Formulário limpo!');
+}
+
+function exportCSV(all){
+  let rows=[];
+  const hdr=['Solicitante','Data','ID Espelho','Tipo','Empresa','Estabelecimento','UO','Gestor','Cargo','CC','Tipo Posição','SG&A','Status','Obs','Obs BPs'];
+  const bpN=email=>{const u=Object.values(USERS).find(u=>u.email===email);return u?u.name:email;};
+  if(all){
+    const d=loadAll();
+    Object.entries(d).forEach(([bp,arr])=>arr.forEach(e=>rows.push([bpN(bp),e.dataSolic,e.idEspelho,e.tipo,e.empresa,e.estabelecimento,e.uo,e.gestor,e.cargo,e.cc,e.tipoPosicao,e.sga,e.status,e.obs,e.obsBps])));
+  } else {
+    if(!entries.length){showToast('Nenhuma posição para exportar.','error');return;}
+    entries.forEach(e=>rows.push([e.solicPor,e.dataSolic,e.idEspelho,e.tipo,e.empresa,e.estabelecimento,e.uo,e.gestor,e.cargo,e.cc,e.tipoPosicao,e.sga,e.status,e.obs,e.obsBps]));
+  }
+  if(!rows.length){showToast('Nenhum dado para exportar.','error');return;}
+  const csv=[hdr,...rows].map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  const ts=new Date().toISOString().slice(0,10);
+  a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));
+  a.download='posicoes_'+(all?'todas_':'')+ts+'.csv';
+  a.click();
+  showToast(`✓ CSV exportado — ${rows.length} linha(s)!`);
+}
+
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+function showToast(msg,type='success'){
+  const tc=document.getElementById('tc');
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.innerHTML=`<span>${msg}</span>`;
+  tc.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(50px)';t.style.transition='all .3s';setTimeout(()=>t.remove(),300);},3000);
+}
+</script>
+</body></html>
